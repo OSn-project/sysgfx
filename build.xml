@@ -1,0 +1,15 @@
+<project name="sysgfx" default="compile">
+	<import file="../../libs.xml"/>
+	
+	<taskdef resource="cpptasks.tasks"/>
+	<taskdef resource="cpptasks.types"/>
+	
+	<target name="compile">
+		<cc outtype="static" subsystem="console" outfile="libosnxml.a" objdir="src/">
+		   <includepath path="include/"/>
+		   <sysincludepath path="${lib.libbase.include}"/>
+		   
+		   <fileset dir="src/" includes="*.cpp"/>
+		</cc>
+	</target>
+</project>

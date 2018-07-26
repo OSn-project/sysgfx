@@ -1,0 +1,5 @@
+A note on terminology:
+======================
+Pixmap means an image with indexed colour.
+Bitmap means an image with RGB colour. It CAN, however, also mean any digital image 
+regardless of its format.
