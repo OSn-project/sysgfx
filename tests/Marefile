@@ -1,0 +1,30 @@
+// Tests Marefile
+
+utpp_lib = "/usr/local/lib/libUnitTest++.a"
+
+executable = "tests"
+test_subjects = "../src/*.o"
+
+targets = {
+	tests = {
+		input   = "$(patsubst %.cpp,%.o,$(files))"
+		output  = "tests"
+		command = "clang++ $(test_subjects) $(input) $(utpp_lib) $(cflags) -o $(executable)"
+
+		cflags = "-O0 -g -Wno-c++11-compat-deprecated-writable-strings"
+
+		files = {
+			"*.cpp" = compile_cpp
+		}
+	}
+
+	run = {
+		command = "./$(executable)"
+	}
+}
+
+compile_cpp = {
+	input   = "$(file)"
+	output  = "$(patsubst %.cpp,%.o,$(file))"
+	command = "clang++ $(cflags) -isystem ../../libbase/include -c $(input) -o $(output)"
+}

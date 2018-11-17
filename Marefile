@@ -1,0 +1,20 @@
+lib_name = "build/sysgfx.a"
+
+targets = {
+	lib = {
+		input = "src/*.o"
+		output = "$(lib_name)"
+		
+		command = "ar -rcs $(output) $(input)"	// This is the command you need to run to create the output from the inputs
+		
+		files = {						// To obtain the inputs, run these procedures on these files.
+			"src/*.c" = compile_c
+		}
+	}
+}
+
+compile_c = {
+	input   = "$(file)"
+	output  = "$(patsubst %.c,%.o,$(file))"
+	command = "clang -I../libbase/include -c $(input) -o $(output)"
+}

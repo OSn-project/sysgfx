@@ -1,29 +1,41 @@
+#include "../headers/bitmap.h"
+
 #include <stdlib.h>
 #include <osndef.h>
 #include <base/misc.h>
 
-#include "../headers/bitmap.hh"
 
-using namespace OSn;
+using namespace OSn::GFX;
 
-Bitmap :: Bitmap(const BmpInfo *info, uint32_t width, uint32_t height)
+Bitmap :: Bitmap()
 {
-	this->width = width;
+	this->width  = 0;
+	this->height = 0;
+	this->pitch  = 0;
+	this->flags  = 0b00000000;
+
+	this->format = NULL;
+	this->data   = NULL;
+}
+
+Bitmap :: Bitmap(uint32_t width, uint32_t height, const PixelFmt *fmt)
+{
+	this->width  = width;
 	this->height = height;
+	this->pitch  = width * fmt->bypp;
 	
-	this->format_info = info;
+	this->format = fmt;
 	
-	this->data = (uint8 *) malloc(ceil_div(width * height * info->bpp, 8));
+	this->data = (uint8 *) malloc(b_ceil(width * height * fmt->bpp, 8));
 }
 
 Bitmap :: ~Bitmap()
 {
-	free(this->data);
+	if (this->flags & BMP_OWNFMT)	free((void *) this->format);
+	if (this->flags & BMP_OWNDATA)	free(this->data);
 }
 
-void Bitmap :: get_pixel(uint32 x, uint32 y, uint32 *out)
+void *Bitmap :: get_pixel(uint32 x, uint32 y) const
 {
-	/* Copies the given pixel into the highest `format_info->bpp` bits of `out` */
-	
-	uint32 *pixel = this->data + ceil_div((y * this->width * this->format_info->bpp) + (x * this->format_info->bpp), 8)
+	return ((uint8 *) this->data) + (y * this->pitch) + (x * this->format->bypp);
 }

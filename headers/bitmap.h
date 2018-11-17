@@ -1,42 +1,69 @@
-#ifndef __OSn_BITMAP_H__
-#define __OSn_BITMAP_H__
+#ifndef OSn_BITMAP_H_
+#define OSn_BITMAP_H_
 
-#include <stdbool.h>
 #include <osndef.h>
 
 #include "rect.h"
 #include "color.h"
-#include "pixelinfo.h"
+#include "pixelfmt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define BMP_OWNING	0b00000001		// Whether the struct should free the image data upon destruction
-
-typedef struct
+namespace OSn
 {
-	int32 width;
-	int32 height;
-	int32 pitch;
+	namespace GFX
+	{
+		class Raster
+		{
+		public:
+			uint32 width, height;
+		
+		public:
+			virtual void *get_pixel(uint32 x, uint32 y) const = 0;
+
+			virtual ~Raster() {};
+		};
+		
+		/*  */
+		#define BMP_OWNDATA 0b00000001
+		#define BMP_OWNFMT  0b00000010
+		
+		class Bitmap : public Raster
+		{
+		public:
+			uint8  flags;
+			uint32 pitch;
+
+			const PixelFmt *format;
+
+			union
+			{
+				uint8   *bytes;
+				uint32  *dwords;
+				Color32 *colors;
+				void    *data;
+			};
+
+		public:
+			Bitmap();
+			Bitmap(const Bitmap *bmp);
+			Bitmap(const Bitmap *bmp, const Rect *area);
+			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);
+			~Bitmap();
+
+			void *get_pixel(uint32 x, uint32 y) const;
+			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
+		};
+		
+		struct Fragment
+		{
+			/* Used to refer to the area of a bitmap */
+
+			const Bitmap *source;
+			Rect rect;
+		};
+	}
 	
-	const OSn_PixelInfo *fmt_info;	// The pixel format of the bitmap. *Not* freed upon destruction.
-	
-	uint8 flags;
-	
-	uint8 *data;
-} OSn_Bitmap;
-
-OSn_Bitmap *bmp_new(const OSn_PixelInfo *fmt, uint32 width, uint32 height);
-void        bmp_init(OSn_Bitmap *bmp, const OSn_PixelInfo *fmt, uint32 width, uint32 height, uint8 *data);
-void        bmp_free(OSn_Bitmap *bmp);
-
-void        bmp_get_pixel(OSn_Bitmap *bmp, int32 x, int32 y, uint32 *out);
-
-//OSn_Bitmap      *gfx_load(FILE *tga_file);	// -> gfx.h/imagefiles.h
-
-#ifdef __cplusplus
+	using GFX::Bitmap;
+	using GFX::Fragment;
 }
-#endif
 
 #endif

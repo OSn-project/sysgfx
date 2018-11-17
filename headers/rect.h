@@ -1,5 +1,5 @@
-#ifndef __OSN_BITMAP_RECT_H__
-#define __OSN_BITMAP_RECT_H__
+#ifndef OSn_RECT_H_
+#define OSn_RECT_H_
 
 #ifdef __cplusplus
 extern "C" {

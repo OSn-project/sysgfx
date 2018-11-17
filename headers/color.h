@@ -4,8 +4,8 @@
  * bit-depth higher than 32) will need to be dealt	*
  * with specially.									*/
 
-#ifndef __OSn_COLOR_H__
-#define __OSn_COLOR_H__
+#ifndef OSn_COLOR_H_
+#define OSn_COLOR_H_
 
 #ifdef __cplusplus
 extern "C" {
