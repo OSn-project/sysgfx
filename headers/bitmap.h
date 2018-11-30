@@ -49,6 +49,8 @@ namespace OSn
 			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);
 			~Bitmap();
 
+			void set(void *data);
+
 			void *get_pixel(uint32 x, uint32 y) const;
 			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
 		};

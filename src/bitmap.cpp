@@ -36,6 +36,14 @@ Bitmap :: ~Bitmap()
 	if (this->flags & BMP_OWNDATA)	free(this->data);
 }
 
+void Bitmap :: set(void *data)
+{
+	if (this->flags & BMP_OWNDATA)
+		free(this->data);
+
+	this->data = data;
+}
+
 void *Bitmap :: get_pixel(uint32 x, uint32 y) const
 {
 	return ((uint8 *) this->data) + (y * this->pitch) + (x * this->format->bypp);

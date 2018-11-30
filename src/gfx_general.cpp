@@ -8,7 +8,18 @@
 
 using namespace OSn;
 
-// Please note: Colours stored as integers are expected to be little endian.
+void GFX::vflip(Bitmap *bmp)
+{
+	uint8 *flipped = (uint8 *) malloc (bmp->height * bmp->pitch);
+
+	for (uint8 *src = bmp->bytes + (bmp->height * bmp->pitch) - bmp->pitch, *dest = flipped; bmp->bytes <= src; dest += bmp->pitch, src -= bmp->pitch)
+	{
+		memcpy(dest, src, bmp->pitch);
+	}
+
+	bmp->set(flipped);
+}
+
 // TODO: RLE support, Grayscale support, Indexed support
 
 Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
@@ -75,6 +86,12 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	{
 	}
 
+	/* Deal with image origin */
+	if (header.image_descr & TGA_ORIGIN_TOP)
+	{
+		GFX::vflip(bitmap);
+	}
+
 	/* Copy TGA-specific metadata if we've been given a pointer to fill */
 	if (meta != NULL)
 	{
@@ -100,9 +117,9 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	return bitmap;
 }
 
-status_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
+bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 {
-	if (!file) return E_ERROR;
+	if (!file) return false;
 
 	/* Compose the header */
 	TGAHeader header;
@@ -152,7 +169,7 @@ status_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 		fwrite(data, bmp->width, bmp->format->bypp, file);
 	}
 
-	return 0;
+	return true;
 }
 
 int main(int argc, char **argv)

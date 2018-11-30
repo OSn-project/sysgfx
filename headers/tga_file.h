@@ -9,6 +9,12 @@
 #define TGA_GRAYSCALE	0b0011
 #define TGA_ISRLE		0b1000
 
+/* Imaege spec byte */
+#define TGA_ORIGIN_TOP		0b00100000
+#define TGA_ORIGIN_BOTTOM	0b00000000
+#define TGA_ORIGIN_RIGHT	0b00010000
+#define TGA_ORIGIN_LEFT		0b00000000
+
 struct TGAHeader
 {
 	uint8 id_len;
