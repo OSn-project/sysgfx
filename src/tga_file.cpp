@@ -53,33 +53,29 @@ const PixelFmt tga_rgba32 = {
 	.mode = PixelFmt::RGBA,
 
 	.rgba = {
-		.a_mask  = 0x000000ff,
-		.a_shift =          0,
-		.a_loss  =          0,
-
-		.r_mask  = 0x0000ff00,
-		.r_shift =          8,
-		.r_loss  =          0,
+		.b_mask  = 0xff000000,
+		.b_shift =         24,
+		.b_loss  =          0,
 
 		.g_mask  = 0x00ff0000,
 		.g_shift =         16,
 		.g_loss  =          0,
 
-		.b_mask  = 0xff000000,
-		.b_shift =         24,
-		.b_loss  =          0,
+		.r_mask  = 0x0000ff00,
+		.r_shift =          8,
+		.r_loss  =          0,
+
+		.a_mask  = 0x000000ff,
+		.a_shift =          0,
+		.a_loss  =          0,
 	},
 };
 
-const PixelFmt *TGAHeader :: get_pixelfmt()
+const PixelFmt *TGAHeader :: get_pixelfmt(uint8 bpp)
 {
-	switch (this->img_type & 0b00000011)
-	{
-	case TGA_RGBA:
-		if (this->bpp == 16) return &tga_rgba16;
-		if (this->bpp == 24) return &tga_rgb24;
-		if (this->bpp == 32) return &tga_rgba32;
-	}
+	if (bpp == 16) return &tga_rgba16;
+	if (bpp == 24) return &tga_rgb24;
+	if (bpp == 32) return &tga_rgba32;
 
 	return NULL;
 }

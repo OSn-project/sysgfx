@@ -29,7 +29,7 @@ struct TGAHeader
 	uint8 image_descr;
 
 	/*  */
-	const OSn::GFX::PixelFmt *get_pixelfmt();	// Note, does not work for indexed images as the pallette varies on a per-image basis.
+	static const OSn::GFX::PixelFmt *get_pixelfmt(uint8 bpp);	// Returns the pixel format for an RGBA TGA image based on the number bits per pixel that it has.
 	inline bool is_indexed() { return (this->img_type & 0b00000011) == TGA_INDEXED; }
 	inline size_t cmap_size() { return this->cmap_info.length * (this->cmap_info.bpp / 8); }
 };

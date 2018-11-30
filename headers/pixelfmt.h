@@ -45,21 +45,15 @@ namespace OSn
 				
 				struct
 				{
-					uint16   colours;
-					Color32 *palette;
+					uint16   size;
+					Color32 *colors;
 				} pallette;
 			};							// This union is anonymous, meaning that its members cede to its enclosing struct.
 
 			static bool compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b);
+			static uint32 convert(uint32 pix_a, const PixelFmt *fmt_a, const PixelFmt *fmt_b);
 		};
-
-		namespace Formats
-		{
-			const extern PixelFmt rgba32;
-		}
 	}
-	
-	using GFX::PixelFmt;
 }
 
 #endif

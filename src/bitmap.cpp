@@ -24,9 +24,10 @@ Bitmap :: Bitmap(uint32_t width, uint32_t height, const PixelFmt *fmt)
 	this->height = height;
 	this->pitch  = width * fmt->bypp;
 	
-	this->format = fmt;
+	this->flags  = 0 | BMP_OWNDATA;
+	this->format = (PixelFmt *) fmt;
 	
-	this->data = (uint8 *) malloc(b_ceil(width * height * fmt->bpp, 8));
+	this->data = (uint8 *) malloc(width * height * fmt->bypp);
 }
 
 Bitmap :: ~Bitmap()

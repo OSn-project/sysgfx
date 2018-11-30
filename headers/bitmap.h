@@ -32,7 +32,7 @@ namespace OSn
 			uint8  flags;
 			uint32 pitch;
 
-			const PixelFmt *format;
+			PixelFmt *format;	// Unless the BMP_OWNFMT flag is set, the referenced struct needs to be treated as a `const`.
 
 			union
 			{

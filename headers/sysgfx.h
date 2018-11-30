@@ -6,6 +6,8 @@
 #include "rect.h"
 #include "bitmap.h"
 
+#include "sysgfx_errors.h"
+
 typedef uint32 status_t;
 #define E_ERROR 1
 #define E_BAD_IMGFMT 6624

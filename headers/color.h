@@ -7,27 +7,31 @@
 #ifndef OSn_COLOR_H_
 #define OSn_COLOR_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <osndef.h>
+#include <endian.h>
 
-typedef struct
-{
-	uint8 red;
-	uint8 green;
-	uint8 blue;
-	uint8 alpha;	// 0x00 = transparent; 0xff = opaque
-} OSn_Color32;
-
-#ifdef __cplusplus
-}
+#define RGBA(C) be32toh(C)	// This allows the use of 32-bit integers as HTML-style RGBA literals. For example, dark yellow would be RGBA(0xffff0000)
 
 namespace OSn
 {
-	typedef OSn_Color32 Color32;
+	namespace GFX
+	{
+		struct PixelFmt;
+	}
+
+	union Color32
+	{
+		struct {
+			uint8 red;
+			uint8 green;
+			uint8 blue;
+			uint8 alpha;	// 0x00 = transparent; 0xff = opaque
+		};
+
+		uint32 value;
+
+		static const GFX::PixelFmt format;
+	};
 }
-#endif
 
 #endif
