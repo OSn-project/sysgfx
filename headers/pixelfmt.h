@@ -2,6 +2,7 @@
 #define OSn_GFX_PIXELFMT_H_
 
 #include <osndef.h>
+#include "gfxdefs.h"
 #include "color.h"
 
 namespace OSn
@@ -12,7 +13,9 @@ namespace OSn
 		{
 			/* Used to represent the pixel format	*
 			 * of a bitmap.							*/
-		
+			/* Describes the format of a color 		*
+			 * stored in a `pixval`.				*/
+
 			uint8 bpp;			// The number of bits per pixel.
 			uint8 bypp;			// The number of bytes per pixel. Should be `->bpp` ceiling devided by 8. 
 			
@@ -51,7 +54,8 @@ namespace OSn
 			};							// This union is anonymous, meaning that its members cede to its enclosing struct.
 
 			static bool compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b);
-			static uint32 convert(uint32 pix_a, const PixelFmt *fmt_a, const PixelFmt *fmt_b);
+			static pixval convert(pixval pix_a, const PixelFmt *fmt_a, const PixelFmt *fmt_b);	// If the pixel format is less than 32 bpp, the value will occupy the lowest order bits/bytes.
+//			static void convert(uint8 *val_a, const PixelFmt *fmt_a, uint8 *val_b, const PixelFmt *fmt_b);
 		};
 	}
 }

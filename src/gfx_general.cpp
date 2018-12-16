@@ -176,9 +176,12 @@ int main(int argc, char **argv)
 {
 	OSn::GFX::PixelFmt::convert(RGBA(0x44332211), &Color32::format, &tga_rgba32);
 
-	FILE *in_file = fopen(argv[1], "r");
+	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/MARBLES.TGA", "r");
 	Bitmap *bmp = GFX::read_tga(in_file);
 	fclose(in_file);
+
+	Rect rect = {200, 300, 400, 500};
+	GFX::fill_rect(bmp, &rect, RGBA(0xff0000ff));
 
 	FILE *out_file = fopen("out.tga", "w");
 	GFX::write_tga(out_file, bmp);

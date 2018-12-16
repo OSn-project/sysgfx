@@ -24,7 +24,18 @@ uint32 PixelFmt :: convert(uint32 in, const PixelFmt *in_fmt, const PixelFmt *ou
 	out |= (r_byte >> out_fmt->rgba.r_loss) << out_fmt->rgba.r_shift;
 	out |= (g_byte >> out_fmt->rgba.g_loss) << out_fmt->rgba.g_shift;
 	out |= (b_byte >> out_fmt->rgba.b_loss) << out_fmt->rgba.b_shift;
-	out |= (a_byte >> out_fmt->rgba.a_loss) << out_fmt->rgba.a_shift;
+
+	if (out_fmt->rgba.a_mask != 0)
+		out |= (a_byte >> out_fmt->rgba.a_loss) << out_fmt->rgba.a_shift;
 
 	return out;
 }
+
+/*void PixelFmt :: convert(uint8 *in_ptr, const PixelFmt *in_fmt, uint8 *out_ptr, const PixelFmt *out_fmt)
+{
+	uint32 in_val;
+	memcpy(&in_val + (sizeof(uint32) - in_fmt->bypp), in_ptr, in_fmt->bypp);
+
+	uint32 out = PixelFmt::convert(in_val, in_fmt, out_fmt);
+	memcpy(out_ptr, &out + (sizeof(uint32) - in_fmt->bypp), out_fmt->bypp);
+}*/

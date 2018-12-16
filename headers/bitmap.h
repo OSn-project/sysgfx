@@ -51,8 +51,10 @@ namespace OSn
 
 			void set(void *data);
 
-			void *get_pixel(uint32 x, uint32 y) const;
+			void *get_pixel(uint32 x, uint32 y) const;		// Get a pointer to the pixel at the given coordinates.
 			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
+
+			static void set(uint8 *pixel, PixelFmt *fmt, uint32 value);
 		};
 		
 		struct Fragment

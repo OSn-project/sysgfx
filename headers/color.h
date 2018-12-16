@@ -19,16 +19,12 @@ namespace OSn
 		struct PixelFmt;
 	}
 
-	union Color32
+	struct Color32
 	{
-		struct {
-			uint8 red;
-			uint8 green;
-			uint8 blue;
-			uint8 alpha;	// 0x00 = transparent; 0xff = opaque
-		};
-
-		uint32 value;
+		uint8 red;
+		uint8 green;
+		uint8 blue;
+		uint8 alpha;	// 0x00 = transparent; 0xff = opaque
 
 		static const GFX::PixelFmt format;
 	};
