@@ -146,7 +146,7 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	header.y_orig = (meta != NULL) ? meta->y_orig : 0;
 
 	header.bpp = bmp->format->bpp;
-	header.image_descr = 0; // FIXME!!!
+	header.image_descr = TGA_ORIGIN_TOP; // FIXME!!!
 
 	/* Write the header */
 	fwrite(&header, sizeof(TGAHeader), 1, file);
@@ -163,7 +163,7 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	}
 
 	/* Write image data */
-	// Since the bitmap data may be padded, we need to write it line by line
+	// Since the bitmap data may be padded (pitch != width * fmt->bypp), we need to write it line by line
 	for (uint8 *data = bmp->bytes; data < bmp->bytes + (bmp->pitch * bmp->height); data += bmp->pitch)
 	{
 		fwrite(data, bmp->width, bmp->format->bypp, file);
@@ -174,14 +174,12 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 
 int main(int argc, char **argv)
 {
-	OSn::GFX::PixelFmt::convert(RGBA(0x44332211), &Color32::format, &tga_rgba32);
-
 	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/MARBLES.TGA", "r");
-	Bitmap *bmp = GFX::read_tga(in_file);
+	Bitmap *bmp = new Bitmap(200, 100, &tga_rgb24);//GFX::read_tga(in_file);
 	fclose(in_file);
 
-	Rect rect = {200, 300, 400, 500};
-	GFX::fill_rect(bmp, &rect, RGBA(0xff0000ff));
+	Rect rect = {20, 30, 70, 120};
+	GFX::fill_rect(bmp, &rect, RGBA(0x5566bbaa));
 
 	FILE *out_file = fopen("out.tga", "w");
 	GFX::write_tga(out_file, bmp);

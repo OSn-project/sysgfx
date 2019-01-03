@@ -49,10 +49,25 @@ void *Bitmap :: get_pixel(uint32 x, uint32 y) const
 	return this->bytes + (y * this->pitch) + (x * this->format->bypp);
 }
 
-void Bitmap :: set(uint8 *pixel, PixelFmt *fmt, uint32 value)
+void Bitmap :: set(uint8 *_pixel, PixelFmt *fmt, uint32 value)
 {
-	uint32 bytes = htobe32(value);
-	memcpy(pixel, &bytes + (4 - fmt->bypp), fmt->bypp);
+	memcpy(_pixel, (uint8 *)(&value) + (4 - fmt->bypp), fmt->bypp);
+
+//	uint32 *pixel = (uint32 *) _pixel;
+//	uint8 fmt_bpp = 8 * fmt->bypp;		// This number of bits per pixel will always be a multiple of 8, even if ->bpp is something like 15.
+//	*pixel = (*pixel & (0xffffffff << fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
+//	       | (value);
+//	*pixel = (*pixel & (0xffffffff >> fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
+//	       | (value << (32 - fmt_bpp));
+
+//	uint32 *pixel = (uint32 *) _pixel;
+//	uint8 fmt_bpp = 8 * fmt->bypp;		// This number of bits per pixel will always be a multiple of 8, even if ->bpp is something like 15.
+//
+//	*pixel = (*pixel & (0xffffffff >> fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
+//	       | (value << (32 - fmt_bpp));
+
+//	uint32 bytes = htobe32(value);
+//	memcpy(pixel, &bytes + (4 - fmt->bypp), fmt->bypp);
 
 //	/* The integer we've been passed will have the pixel value	*
 //	 * stored in its lowest-order bytes. We need to copy ONLY	*

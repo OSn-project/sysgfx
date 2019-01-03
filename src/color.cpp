@@ -1,6 +1,6 @@
 #include "../headers/color.h"
 #include "../headers/pixelfmt.h"
-
+#include <endian.h>
 using namespace OSn;
 
 /* FIXME: C++ designated initializers only supported by clang */
