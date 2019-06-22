@@ -4,30 +4,52 @@
 #define  NO_HIPPOMOCKS_NAMESPACE
 #include <HippoMocks/hippomocks.h>
 
-#include "../.junk/bitmap.h"
+#include "../headers/bitmap.h"
+#include "../headers/color.h"
 
-SUITE(OSn_Bitmap)
+using namespace OSn;
+
+void randomize_bmp(Bitmap *bmp)
+{
+	for (uint8 *byte = bmp->bytes; byte - bmp->bytes < bmp->pitch * bmp->width; byte++)
+	{
+		*byte = (uint8) rand();
+	}
+}
+
+SUITE(Bitmap)
 {
 	void *dummy_malloc(size_t)
 	{
 		return (void *) 1;
 	}
 	
-	TEST (bmp_init)
+	TEST (constructor)
 	{
 		MockRepository mocks;
 		
-		OSn_PixelInfo info = { .bpp = 5 };
-		OSn_Bitmap bmp;
+		GFX::PixelFmt fmt = { .bpp = 11, .bypp = 2 };
+		Bitmap bmp(15, 37, &fmt);
 		
 		mocks.ExpectCallFunc(malloc).With(347).Do(dummy_malloc);
 		
-		bmp_init(&bmp, &info, 15, 37, NULL);
-		
 		CHECK(bmp.width  == 15);
+		CHECK(bmp.pitch  == 30);	// 15 * 2bypp
 		CHECK(bmp.height == 37);
-		CHECK(bmp.flags  == 0b00000001);
-		CHECK(bmp.fmt_info == &info);
+		CHECK(bmp.flags  == BMP_OWNDATA);
+		CHECK(bmp.format == &fmt);
 		CHECK(bmp.data   != NULL);
+	}
+
+	TEST(get_set_pixel)
+	{
+//		Bitmap bmp(100, 100, &Color32::format);
+//		randomize_bmp(&bmp);
+//
+//		dword val;
+//		bmp.get_pixel(19, 43, &val);
+//		bmp.set_pixel(31, 55,  val);
+//
+//		CHECK(*((uint32) bmp.get_pixel(31, 55)) == *((uint32) bmp.get_pixel(19, 43)));;
 	}
 }

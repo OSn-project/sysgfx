@@ -5,6 +5,7 @@
  *      Author: albert
  */
 
+#include <osndef.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -36,15 +37,15 @@ void GFX::fill_rect(Bitmap *bmp, const Rect *rect, uint32 color)
 		y2 = bmp->height - 1;
 	}
 
-	uint32 value = PixelFmt::convert(color, &Color32::format, bmp->format);
+	dword value = PixelFmt::convert(color, &Color32::format, bmp->format);
 
 	for (uint32 y = y1; y <= y2; y++)
 	{
 		uint8 *pixel = bmp->bytes + (y * bmp->pitch) + (x1 * bmp->format->bypp);
 
-		for (uint32 x = x1; x < x2; x++)
+		for (uint32 x = x1; x <= x2; x++)
 		{
-			Bitmap::set(pixel, bmp->format, value);
+			Bitmap::set_pixel(pixel, bmp->format, value);
 			pixel += bmp->format->bypp;
 		}
 	}

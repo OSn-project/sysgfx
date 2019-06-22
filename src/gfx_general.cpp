@@ -8,6 +8,8 @@
 
 using namespace OSn;
 
+void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size);
+
 void GFX::vflip(Bitmap *bmp)
 {
 	uint8 *flipped = (uint8 *) malloc (bmp->height * bmp->pitch);
@@ -163,23 +165,53 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	}
 
 	/* Write image data */
+	uint8 *line_bswapped = (uint8 *) malloc(bmp->width * bmp->format->bypp);
+
 	// Since the bitmap data may be padded (pitch != width * fmt->bypp), we need to write it line by line
-	for (uint8 *data = bmp->bytes; data < bmp->bytes + (bmp->pitch * bmp->height); data += bmp->pitch)
+	for (uint8 *line = bmp->bytes; line < bmp->bytes + (bmp->pitch * bmp->height); line += bmp->pitch)
 	{
-		fwrite(data, bmp->width, bmp->format->bypp, file);
+		if (bmp->format == &tga_rgba16)
+			bswap_data(line, line_bswapped, bmp->width, bmp->format->bypp);
+		else
+			memcpy(line_bswapped, line, bmp->width * bmp->format->bypp);
+
+		fwrite(line_bswapped, bmp->width, bmp->format->bypp, file);
 	}
 
+	free(line_bswapped);
+
 	return true;
+}
+
+void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size)
+{
+	/* This function splits an array into blocks `item_size` bytes in size,	*
+	 * and and flips order of the bytes within those blocks, whilst keeping	*
+	 * the order of the blocks. This function has two uses:					*
+	 *  - executing `bswapxx()` on an array of multiple values.				*
+	 *  - byte-swapping an integer of which the size is not known until		*
+	 *    runtime.															*/
+
+	for (uint8 *cur_src = src, *cur_dest = dest; cur_src - src < item_count * item_size; cur_src++, cur_dest++)
+	{
+		/* `cur_src` and `cur_dest` point to the current item that	*
+		 * we are byte-swapping.									*/
+
+		for (uint8 i = 0; i < item_size; i++)
+		{
+			cur_dest[i] = cur_src[item_size - i];
+		}
+	}
 }
 
 int main(int argc, char **argv)
 {
 	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/MARBLES.TGA", "r");
-	Bitmap *bmp = new Bitmap(200, 100, &tga_rgb24);//GFX::read_tga(in_file);
+	Bitmap *bmp = new Bitmap(200, 100, &tga_rgba16);//GFX::read_tga(in_file);
 	fclose(in_file);
 
-	Rect rect = {20, 30, 70, 120};
-	GFX::fill_rect(bmp, &rect, RGBA(0x5566bbaa));
+	Rect rect = {20, 30, 20+10, 30+10};
+	GFX::fill_rect(bmp, &rect, RGBA(0x0d0d0dff));
 
 	FILE *out_file = fopen("out.tga", "w");
 	GFX::write_tga(out_file, bmp);

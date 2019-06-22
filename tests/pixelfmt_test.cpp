@@ -8,6 +8,7 @@
 #include "../headers/tga_file.h"
 
 using namespace OSn;
+using namespace OSn::GFX;
 
 SUITE(PixelFmt)
 {
@@ -15,7 +16,7 @@ SUITE(PixelFmt)
 	{
 		{
 			Color32 out;
-			out.value = PixelFmt::convert(RGBA(0x33221144), &tga_rgba32, &GFX::Formats::rgba32);
+			out.value = PixelFmt::convert(RGBA(0x33221144), &tga_rgba32, &Color32::format);
 
 			CHECK (out.red   == 0x11);
 			CHECK (out.green == 0x22);

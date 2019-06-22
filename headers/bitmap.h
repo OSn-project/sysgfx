@@ -51,10 +51,16 @@ namespace OSn
 
 			void set(void *data);
 
-			void *get_pixel(uint32 x, uint32 y) const;		// Get a pointer to the pixel at the given coordinates.
+			void *get_pixel(uint32 x, uint32 y) const;		// Returns a pointer to the memory location of the pixel at the given coordinates. Returns NULL for out-of-bounds coordinates.
+			bool  get_pixel(uint32 x, uint32 y, dword *out);	// Copy the value of the given pixel into the highest-in-memory bytes of the given integer. Does not convert format. Returns false for out-of-bounds coordinates.
+			static void set_pixel(uint8 *pixel, PixelFmt *fmt, dword value);	// Sets the pixel at the given location in memory to the given
+			inline bool integrity() const { return (this->format != NULL && this->data != NULL); }
 			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
 
-			static void set(uint8 *pixel, PixelFmt *fmt, uint32 value);
+			void to_rgb(PixelFmt *fmt, Bitmap *out) const;		// This is always a lossless operation, unlike `rgb -> indexed`.
+
+			static void delete_fmt(Bitmap *bmp);
+			static void delete_data(Bitmap *bmp);
 		};
 		
 		struct Fragment

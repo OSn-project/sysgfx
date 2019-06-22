@@ -51,7 +51,7 @@ struct TGAMeta
 	void *img_id;
 };
 
-extern const OSn::GFX::PixelFmt tga_rga16;
+extern const OSn::GFX::PixelFmt tga_rgba16;
 extern const OSn::GFX::PixelFmt tga_rgb24;
 extern const OSn::GFX::PixelFmt tga_rgba32;
 

@@ -49,7 +49,7 @@ void *Bitmap :: get_pixel(uint32 x, uint32 y) const
 	return this->bytes + (y * this->pitch) + (x * this->format->bypp);
 }
 
-void Bitmap :: set(uint8 *_pixel, PixelFmt *fmt, uint32 value)
+void Bitmap :: set_pixel(uint8 *_pixel, PixelFmt *fmt, dword value)
 {
 	memcpy(_pixel, (uint8 *)(&value) + (4 - fmt->bypp), fmt->bypp);
 

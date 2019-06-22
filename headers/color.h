@@ -11,6 +11,7 @@
 #include <endian.h>
 
 #define RGBA(C) htobe32(C)	// This allows the use of 32-bit integers as HTML-style RGBA literals. For example, dark yellow would be RGBA(0xffff0000)
+#define RGB(C) RGBA(((C) << 8) & 0x000000ff)
 
 namespace OSn
 {
@@ -29,6 +30,19 @@ namespace OSn
 		};
 
 		uint32 value;
+
+		static const GFX::PixelFmt format;
+	};
+
+	union __attribute__((packed)) Color24
+	{
+		struct __attribute__((packed)) {
+			uint8 red;
+			uint8 green;
+			uint8 blue;
+		};
+
+		uint32 value : 24;
 
 		static const GFX::PixelFmt format;
 	};
