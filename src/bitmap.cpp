@@ -49,6 +49,16 @@ void *Bitmap :: get_pixel(uint32 x, uint32 y) const
 	return this->bytes + (y * this->pitch) + (x * this->format->bypp);
 }
 
+bool Bitmap :: get_pixel(uint32 x, uint32 y, dword *out)
+{
+	void *pixel = this->bytes + (y * this->pitch) + (x * this->format->bypp);
+
+	memcpy(out + (4 - this->format->bypp), pixel, this->format->bypp);
+//	*out = (pixel - 4 + this->format.bypp)			// Align so that the bytes of the pixel are on the right of the dword
+
+	return true;
+}
+
 void Bitmap :: set_pixel(uint8 *_pixel, PixelFmt *fmt, dword value)
 {
 	memcpy(_pixel, (uint8 *)(&value) + (4 - fmt->bypp), fmt->bypp);
@@ -80,4 +90,71 @@ void Bitmap :: set_pixel(uint8 *_pixel, PixelFmt *fmt, dword value)
 //	{
 //		pixel[byte_no] = (uint8) value >> (8 * byte_no);
 //	}
+}
+
+//static dword lbytes(uint8 n)
+//{
+//	union {
+//		uint8 bytes[4];
+//		dword val;
+//	} out;
+//
+//	switch (n)
+//	{
+//		case 0: out.bytes = {0x00, 0x00, 0x00, 0x00}; break;
+//		case 1: out.bytes = {0xff, 0x00, 0x00, 0x00}; break;
+//		case 2: out.bytes = {0xff, 0xff, 0x00, 0x00}; break;
+//		case 3: out.bytes = {0xff, 0xff, 0xff, 0x00}; break;
+//		case 4: out.bytes = {0xff, 0xff, 0xff, 0xff}; break;
+//	}
+//
+//	return out.val;
+//}
+//
+//static dword hbytes(uint8 n)
+//{
+//	union {
+//		uint8 bytes[4];
+//		dword val;
+//	} out;
+//
+//	switch (n)
+//	{
+//		case 0: out.bytes = {0x00, 0x00, 0x00, 0x00}; break;
+//		case 1: out.bytes = {0x00, 0x00, 0x00, 0xff}; break;
+//		case 2: out.bytes = {0x00, 0x00, 0xff, 0xff}; break;
+//		case 3: out.bytes = {0x00, 0xff, 0xff, 0xff}; break;
+//		case 4: out.bytes = {0xff, 0xff, 0xff, 0xff}; break;
+//	}
+//
+//	return out.val;
+//}
+
+Bitmap *Bitmap :: convert(const Bitmap *src, const PixelFmt *fmt, Bitmap *out)
+{
+	if (! src) return NULL;
+	if (! fmt) return NULL;
+
+	if (out == NULL)
+	{
+		out = new Bitmap(src->width, src->height, fmt);		// TODO: Format is not changed if out bitmap is given.
+	}														// TODO: Pixel mem needlessly allocated just to be replaced later
+
+	uint8 *converted = (uint8 *) malloc(src->width * fmt->bypp * src->height);
+
+	dword in_val, out_val;
+
+	for (int32 y = 0; y < src->height; y++)
+	{
+		for (int32 x = 0; x < src->width; x++)
+		{
+			memcpy((uint8 *) &in_val + (4 - src->format->bypp), src->bytes + (y * src->pitch) + (x * src->format->bypp), src->format->bypp);
+			out_val = PixelFmt::convert(in_val, src->format, fmt);
+			memcpy(converted + (y * src->width * fmt->bypp) + (x * fmt->bypp), (uint8 *) &out_val + (4 - fmt->bypp), fmt->bypp);
+		}
+	}
+
+	out->set(converted);
+
+	return out;
 }

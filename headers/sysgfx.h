@@ -41,6 +41,8 @@ namespace OSn
 	}
 }
 
-
+// + Font rendering
+// + packed bitmaps
+// + TGA RLE compression
 
 #endif

@@ -1,3 +1,5 @@
+/* Compile: clang++ -o gfx_general *.o */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -206,17 +208,27 @@ void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size)
 
 int main(int argc, char **argv)
 {
-	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/MARBLES.TGA", "r");
-	Bitmap *bmp = new Bitmap(200, 100, &tga_rgba16);//GFX::read_tga(in_file);
+	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/gradient.tga", "r");
+	Bitmap *bmp = GFX::read_tga(in_file);//new Bitmap(200, 100, &tga_rgba16);
 	fclose(in_file);
 
-	Rect rect = {20, 30, 20+10, 30+10};
-	GFX::fill_rect(bmp, &rect, RGBA(0x0d0d0dff));
+//	Rect rect = {20, 30, 20+10, 30+10};
+//	GFX::fill_rect(bmp, &rect, RGBA(0x0d0d0dff));
+
+	Bitmap *img16 = Bitmap::convert(bmp, &tga_rgba16);	// Convert to 16-bit format and back to verify that conversion works.
+	Bitmap *result32 = Bitmap::convert(img16, &tga_rgba32);
 
 	FILE *out_file = fopen("out.tga", "w");
-	GFX::write_tga(out_file, bmp);
+	GFX::write_tga(out_file, result32);
 	fclose(out_file);
 
 	delete bmp;
+	delete img16;
+	delete result32;
+
 	return 0;
 }
+
+/*
+ * TODO: value lowest not highest in dword.
+ */

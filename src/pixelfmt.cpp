@@ -1,4 +1,5 @@
 #include <string.h>
+#include <osndef.h>
 #include "../headers/pixelfmt.h"
 
 using namespace OSn;
@@ -10,7 +11,7 @@ using namespace GFX;
  * (0b11111) turning into a light-gray (0b11111000)	*
  * when expanded to 8 bits. The arrays are in asce-	*
  * nding order of pixel size. To expand a value,	*
- * do: `PixelFmt::expand_table[val. size]			*
+ * do: `PixelFmt::expand_table[size in bits]		*
  * [pix. value]`. Original values courtesy of SDL.	*/
 
 static uint8 expand_0b[] = {255};
@@ -37,13 +38,52 @@ uint8 *PixelFmt::expand_table[9] = {
 
 Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 {
-	Color32 out;
+	/* The code below may accidentally read one byte beyond the dword if a colour 		*
+	 * channel is only present in the last byte. (`bytes[in_fmt->rgba.r_shift / 8 + 1]` *
+	 * gets the second byte that may contain the channel, but this may be out of bounds *
+	 * if the whole channel is contained in the fourth byte.)							*
+	 * See below:																		*
+	 *
+	 * |xxxxxxxx|xxxxxx12|345xxxxx|xxxxxxxx|
+	 *           ^^^^^^^^ ^^^^^^^^
+	 *
+	 * |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxx12345|
+	 *                             ^^^^^^^^ ^^^^^^^^
+	 *
+	 * So we need to own the extra byte as well unless we want to complicate our code.	*
+	 * We do this by storing the value in the lowest-in-memory part of a `qword`.		*/
+
+	qword padded = 0;
+	*((dword *) &padded) = val;
+
+	uint8 *bytes = (uint8 *) &padded;
+
+	Color32 out;	// decoded colour intensities
+
+/* A step-by-step explanation of the following code.
+ * Assumes values < 8 bytes in size.
+ * Note: `in_fmt->rgba.r_shift / 8` gets us the index of the first byte containing part of the channel.
+
+	uint8 r_val = 	(bytes[in_fmt->rgba.r_shift / 8]	// First byte containing the channel we want. The relevant bits will be to the right (least sig.).
+					| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8]		// Mask out only the relevant bits. Mask provided in format definition.
+					<< in_fmt->rgba.r_shift % 8) &	// Shift them to make space for the bits from the following byte.
+					(bytes[in_fmt->rgba.r_shift / 8 + 1]	// Get the second byte containing the channel we want. The relevant bits will be to the left (most sig.).
+					| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8 + 1]	// Mask out the relevant bits.
+					>> 8 - (in_fmt->rgba.r_shift % 8))	// Shift to fill the remaining space in the output.
+ */
 
 	/* Extract each color intensity from the pixel value */
-	uint8 r_val = be32toh(val & htobe32(in_fmt->rgba.r_mask)) >> (in_fmt->rgba.r_shift);	// We need to convert to system endian so that bit shifts work properly. Also we promissed that the bytes of the channel mask would be interpreted in the order in which theyb are displayed, so we need to convert it to big endian.
-	uint8 g_val = be32toh(val & htobe32(in_fmt->rgba.g_mask)) >> (in_fmt->rgba.g_shift);
-	uint8 b_val = be32toh(val & htobe32(in_fmt->rgba.b_mask)) >> (in_fmt->rgba.b_shift);
-	uint8 a_val = be32toh(val & htobe32(in_fmt->rgba.a_mask)) >> (in_fmt->rgba.a_shift);
+	uint8 r_val = (	(bytes[in_fmt->rgba.r_shift / 8]     & in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8])     << (    in_fmt->rgba.r_shift % 8) |
+					(bytes[in_fmt->rgba.r_shift / 8 + 1] & in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8 + 1]) >> (8 - in_fmt->rgba.r_shift % 8)) >> (8 - in_fmt->rgba.r_size);
+	uint8 g_val = (	(bytes[in_fmt->rgba.g_shift / 8]     & in_fmt->rgba.g_mask[in_fmt->rgba.g_shift / 8])     << (    in_fmt->rgba.g_shift % 8) |
+					(bytes[in_fmt->rgba.g_shift / 8 + 1] & in_fmt->rgba.g_mask[in_fmt->rgba.g_shift / 8 + 1]) >> (8 - in_fmt->rgba.g_shift % 8)) >> (8 - in_fmt->rgba.g_size);
+	uint8 b_val = (	(bytes[in_fmt->rgba.b_shift / 8]     & in_fmt->rgba.b_mask[in_fmt->rgba.b_shift / 8])     << (    in_fmt->rgba.b_shift % 8) |
+					(bytes[in_fmt->rgba.b_shift / 8 + 1] & in_fmt->rgba.b_mask[in_fmt->rgba.b_shift / 8 + 1]) >> (8 - in_fmt->rgba.b_shift % 8)) >> (8 - in_fmt->rgba.b_size);
+	uint8 a_val = (	(bytes[in_fmt->rgba.a_shift / 8]     & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8])     << (    in_fmt->rgba.a_shift % 8) |
+					(bytes[in_fmt->rgba.a_shift / 8 + 1] & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8 + 1]) >> (8 - in_fmt->rgba.a_shift % 8)) >> (8 - in_fmt->rgba.a_size);
+
+//	uint8 a_val =	((bytes[in_fmt->rgba.a_shift / 8]     & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8])     << (    (in_fmt->rgba.a_shift+in_fmt->rgba.a_size) % 8)) |
+//					((bytes[in_fmt->rgba.a_shift / 8 + 1] & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8 + 1]) >> (8 - (in_fmt->rgba.a_shift+in_fmt->rgba.a_size) % 8));
 
 	/* Expand the color intensities to the range 0-255 */
 	out.red   = PixelFmt::expand_table[in_fmt->rgba.r_size][r_val];
@@ -51,7 +91,7 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	out.blue  = PixelFmt::expand_table[in_fmt->rgba.b_size][b_val];
 	out.alpha = PixelFmt::expand_table[in_fmt->rgba.a_size][a_val];
 
-	if (in_fmt->rgba.a_mask == 0)
+	if (in_fmt->rgba.a_size == 0)
 		out.alpha = 0xff;				// If the source format does not have an alpha channel, assume that the color is opaque.
 
 	return out;
@@ -59,17 +99,37 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 
 dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 {
-	dword out = 0;
+	union {
+		uint8 bytes[4];
+		dword val;
+	} out;
+
+	out.val = 0;
+
+	/* Squash the color values to the sizes required by the format	*
+	 * by erasing their least significant bits.						*/
+
+	col.red   &= 0xff << (8 - out_fmt->rgba.r_size);
+	col.green &= 0xff << (8 - out_fmt->rgba.g_size);
+	col.blue  &= 0xff << (8 - out_fmt->rgba.b_size);
+	col.alpha &= 0xff << (8 - out_fmt->rgba.a_size);
 
 	/* Compose the color intensities in the output format */
-	out |= htobe32((col.red   >> (8 - out_fmt->rgba.r_size)) << out_fmt->rgba.r_shift);
-	out |= htobe32((col.green >> (8 - out_fmt->rgba.g_size)) << out_fmt->rgba.g_shift);
-	out |= htobe32((col.blue  >> (8 - out_fmt->rgba.b_size)) << out_fmt->rgba.b_shift);
 
-	if (out_fmt->rgba.a_mask != 0)
-		out |= htobe32((col.alpha >> (8 - out_fmt->rgba.a_size)) << out_fmt->rgba.a_shift);
+	out.bytes[out_fmt->rgba.r_shift / 8]     |= col.red   >> (    out_fmt->rgba.r_shift % 8);		// Split the byte into two parts -- one to go into the lower-in-memory byte of the color value, and one to go into the higher one.
+	out.bytes[out_fmt->rgba.r_shift / 8 + 1] |= col.red   << (8 - out_fmt->rgba.r_shift % 8);		// They'll form the right-most bits of the first byte and the left-most bits of the second byte.
+	out.bytes[out_fmt->rgba.g_shift / 8]     |= col.green >> (    out_fmt->rgba.g_shift % 8);
+	out.bytes[out_fmt->rgba.g_shift / 8 + 1] |= col.green << (8 - out_fmt->rgba.g_shift % 8);
+	out.bytes[out_fmt->rgba.b_shift / 8]     |= col.blue  >> (    out_fmt->rgba.b_shift % 8);
+	out.bytes[out_fmt->rgba.b_shift / 8 + 1] |= col.blue  << (8 - out_fmt->rgba.b_shift % 8);
 
-	return out;
+	if (out_fmt->rgba.a_size != 0)	// Only write the alpha channel if the format supports it.
+	{
+		out.bytes[out_fmt->rgba.a_shift / 8]     |= col.alpha >> (    out_fmt->rgba.a_shift % 8);
+		out.bytes[out_fmt->rgba.a_shift / 8 + 1] |= col.alpha << (8 - out_fmt->rgba.a_shift % 8);
+	}
+
+	return out.val;
 }
 
 dword PixelFmt :: convert(dword in, const PixelFmt *in_fmt, const PixelFmt *out_fmt)

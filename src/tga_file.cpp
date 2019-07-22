@@ -9,20 +9,20 @@ const PixelFmt tga_rgba16 = {
 	.mode  = PixelFmt::RGBA,
 
 	.rgba = {
-		.r_mask  = 0b0000000000011111,
-		.r_shift = 0,
+		.r_mask  = {0, 0, 0b00000000, 0b00011111},
+		.r_shift = 27,
 		.r_size  = 5,
 
-		.g_mask  = 0b0000001111100000,
-		.g_shift = 5,
+		.g_mask  = {0, 0, 0b00000011, 0b11100000},
+		.g_shift = 22,
 		.g_size  = 5,
 
-		.b_mask  = 0b0111110000000000,
-		.b_shift = 10,
+		.b_mask  = {0, 0, 0b01111100, 0b00000000},
+		.b_shift = 17,
 		.b_size  = 5,
 
-		.a_mask  = 0b1000000000000000,
-		.a_shift = 15,
+		.a_mask  = {0, 0, 0b10000000, 0b00000000},
+		.a_shift = 16,
 		.a_size  = 1,
 	},
 };
@@ -33,43 +33,43 @@ const PixelFmt tga_rgb24 = {
 	.mode = PixelFmt::RGBA,
 
 	.rgba = {
-		.r_mask  = 0x000000ff,
-		.r_shift =          0,
-		.r_size  =          8,
+		.b_mask  = {0x00, 0xff, 0x00, 0x00},
+		.b_shift = 8,
+		.b_size  = 8,
 
-		.g_mask  = 0x0000ff00,
-		.g_shift =          8,
-		.g_size  =          8,
+		.g_mask  = {0x00, 0x00, 0xff, 0x00},
+		.g_shift = 16,
+		.g_size  = 8,
 
-		.b_mask  = 0x00ff0000,
-		.b_shift =         16,
-		.b_size  =          8,
+		.r_mask  = {0x00, 0x00, 0x00, 0xff},
+		.r_shift = 24,
+		.r_size  = 8,
 	},
 };
 
 const PixelFmt tga_rgba32 = {
-	.bpp  = 32,
-	.bypp = 4,
-	.mode = PixelFmt::RGBA,
+		.bpp  = 32,
+		.bypp = 4,
+		.mode = PixelFmt::RGBA,
 
-	.rgba = {
-		.b_mask  = 0xff000000,
-		.b_shift =         24,
-		.b_size  =          8,
+		.rgba = {
+			.b_mask  = {0xff, 0x00, 0x00, 0x00},
+			.b_shift = 0,
+			.b_size  = 8,
 
-		.g_mask  = 0x00ff0000,
-		.g_shift =         16,
-		.g_size  =          8,
+			.g_mask  = {0x00, 0xff, 0x00, 0x00},
+			.g_shift = 8,
+			.g_size  = 8,
 
-		.r_mask  = 0x0000ff00,
-		.r_shift =          8,
-		.r_size  =          8,
+			.r_mask  = {0x00, 0x00, 0xff, 0x00},
+			.r_shift = 16,
+			.r_size  = 8,
 
-		.a_mask  = 0x000000ff,
-		.a_shift =          0,
-		.a_size  =          8,
-	},
-};
+			.a_mask  = {0x00, 0x00, 0x00, 0xff},
+			.a_shift = 24,
+			.a_size  = 8,
+		},
+	};
 
 const PixelFmt *TGAHeader :: get_pixelfmt(uint8 bpp)
 {

@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <base/misc.h>
-//#include <base/macros.h>
+#include <base/macros.h>
 
 #include "../headers/sysgfx.h"
 #include "../headers/color.h"
