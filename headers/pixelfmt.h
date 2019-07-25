@@ -51,6 +51,9 @@ namespace OSn
 					uint8 a_mask[4];
 					uint8 a_shift;
 					uint8 a_size;
+
+					bool byte_swap;		// Reverses the order of the bytes once the pixel value is encoded. Set for little-endian formats. Works for .bypp = 1, 2, 3, 4
+					bool invert_alpha;	// If true, 255 = transparent and 0 = opaque.
 				} rgba;
 				
 				struct
@@ -64,7 +67,7 @@ namespace OSn
 
 			static bool compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b);
 
-			static Color32 decode(dword val, const PixelFmt *in_fmt);
+			static Color32 decode(dword val, const PixelFmt *in_fmt);		// Both encode and decode expect the format to not be indexed.
 			static dword   encode(Color32 col, const PixelFmt *out_fmt);
 			static dword   convert(dword val, const PixelFmt *fmt_a, const PixelFmt *fmt_b);	// If the pixel format is less than 32 bpp, the value will occupy the uppermost in memory bits/bytes.
 //			static void convert(uint8 *val_a, const PixelFmt *fmt_a, uint8 *val_b, const PixelFmt *fmt_b);

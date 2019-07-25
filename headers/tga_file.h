@@ -1,5 +1,5 @@
-#ifndef OSn_TGA_FILE_H_
-#define OSn_TGA_FILE_H_
+#ifndef TGA_FILE_H_
+#define TGA_FILE_H_
 
 #include <osndef.h>
 #include "../headers/pixelfmt.h"

@@ -1,5 +1,8 @@
 #include <string.h>
+#include <assert.h>
 #include <osndef.h>
+#include <byteswap.h>
+
 #include "../headers/pixelfmt.h"
 
 using namespace OSn;
@@ -36,8 +39,30 @@ uint8 *PixelFmt::expand_table[9] = {
 	expand_8b,
 };
 
+static void bswap_3bytes(uint8 *i)
+{
+	/* Swap the bytes of the referenced 24-bit integer */
+
+	uint8 tmp = i[0];
+	i[0] = i[2];
+	i[2] = tmp;
+}
+
+inline void swap_bytes(uint8 *i, uint8 size)
+{
+	switch (size)
+	{
+		case 2:  *(uint16 *) i = bswap_16(*(uint16 *) i); return;
+		case 3:  bswap_3bytes(i); return;
+		case 4:  *(uint32 *) i = bswap_32(*(uint32 *) i); return;
+		default: return;
+	}
+}
+
 Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 {
+	assert(in_fmt->mode == PixelFmt::RGBA);
+
 	/* The code below may accidentally read one byte beyond the dword if a colour 		*
 	 * channel is only present in the last byte. (`bytes[in_fmt->rgba.r_shift / 8 + 1]` *
 	 * gets the second byte that may contain the channel, but this may be out of bounds *
@@ -53,24 +78,30 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	 * So we need to own the extra byte as well unless we want to complicate our code.	*
 	 * We do this by storing the value in the lowest-in-memory part of a `qword`.		*/
 
+	Color32 out;	// decoded colour intensities
+
 	qword padded = 0;
 	*((dword *) &padded) = val;
 
 	uint8 *bytes = (uint8 *) &padded;
 
-	Color32 out;	// decoded colour intensities
+	/* First swap the bytes if necessary */
+	if (in_fmt->rgba.byte_swap)
+	{
+		swap_bytes(bytes + 4 - in_fmt->bypp, in_fmt->bypp);
+	}
 
-/* A step-by-step explanation of the following code.
- * Assumes values < 8 bytes in size.
- * Note: `in_fmt->rgba.r_shift / 8` gets us the index of the first byte containing part of the channel.
+	/* A step-by-step explanation of the following code.
+	 * Assumes values < 8 bytes in size.
+	 * Note: `in_fmt->rgba.r_shift / 8` gets us the index of the first byte containing part of the channel.
 
-	uint8 r_val = 	(bytes[in_fmt->rgba.r_shift / 8]	// First byte containing the channel we want. The relevant bits will be to the right (least sig.).
-					| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8]		// Mask out only the relevant bits. Mask provided in format definition.
-					<< in_fmt->rgba.r_shift % 8) &	// Shift them to make space for the bits from the following byte.
-					(bytes[in_fmt->rgba.r_shift / 8 + 1]	// Get the second byte containing the channel we want. The relevant bits will be to the left (most sig.).
-					| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8 + 1]	// Mask out the relevant bits.
-					>> 8 - (in_fmt->rgba.r_shift % 8))	// Shift to fill the remaining space in the output.
- */
+		uint8 r_val = 	(bytes[in_fmt->rgba.r_shift / 8]	// First byte containing the channel we want. The relevant bits will be to the right (least sig.).
+						| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8]		// Mask out only the relevant bits. Mask provided in format definition.
+						<< in_fmt->rgba.r_shift % 8) &	// Shift them to make space for the bits from the following byte.
+						(bytes[in_fmt->rgba.r_shift / 8 + 1]	// Get the second byte containing the channel we want. The relevant bits will be to the left (most sig.).
+						| in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8 + 1]	// Mask out the relevant bits.
+						>> 8 - (in_fmt->rgba.r_shift % 8))	// Shift to fill the remaining space in the output.
+	 */
 
 	/* Extract each color intensity from the pixel value */
 	uint8 r_val = (	(bytes[in_fmt->rgba.r_shift / 8]     & in_fmt->rgba.r_mask[in_fmt->rgba.r_shift / 8])     << (    in_fmt->rgba.r_shift % 8) |
@@ -91,20 +122,29 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	out.blue  = PixelFmt::expand_table[in_fmt->rgba.b_size][b_val];
 	out.alpha = PixelFmt::expand_table[in_fmt->rgba.a_size][a_val];
 
+	if (in_fmt->rgba.invert_alpha)
+		out.alpha = 255 - out.alpha;
+
 	if (in_fmt->rgba.a_size == 0)
-		out.alpha = 0xff;				// If the source format does not have an alpha channel, assume that the color is opaque.
+		out.alpha = 0;				// If the source format does not have an alpha channel, assume that the color is opaque.
 
 	return out;
 }
 
 dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 {
+	assert(out_fmt->mode == PixelFmt::RGBA);
+
 	union {
 		uint8 bytes[4];
 		dword val;
 	} out;
 
 	out.val = 0;
+
+	/* Invert alpha if necessary */
+	if (out_fmt->rgba.invert_alpha)
+		col.alpha = 255 - col.alpha;
 
 	/* Squash the color values to the sizes required by the format	*
 	 * by erasing their least significant bits.						*/
@@ -129,6 +169,12 @@ dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 		out.bytes[out_fmt->rgba.a_shift / 8 + 1] |= col.alpha << (8 - out_fmt->rgba.a_shift % 8);
 	}
 
+	/* Swap the bytes if format is little-endian */
+	if (out_fmt->rgba.byte_swap)
+	{
+		swap_bytes(&out.bytes[4 - out_fmt->bypp], out_fmt->bypp);
+	}
+
 	return out.val;
 }
 
@@ -151,3 +197,4 @@ bool PixelFmt :: compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b)
 {
 	return memcmp(fmt_a, fmt_b, sizeof(PixelFmt)) == 0;
 }
+

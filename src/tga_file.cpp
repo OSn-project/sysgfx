@@ -9,21 +9,23 @@ const PixelFmt tga_rgba16 = {
 	.mode  = PixelFmt::RGBA,
 
 	.rgba = {
-		.r_mask  = {0, 0, 0b00000000, 0b00011111},
-		.r_shift = 27,
+		.r_mask  = {0, 0, 0b01111100, 0b00000000},
+		.r_shift = 17,
 		.r_size  = 5,
 
 		.g_mask  = {0, 0, 0b00000011, 0b11100000},
 		.g_shift = 22,
 		.g_size  = 5,
 
-		.b_mask  = {0, 0, 0b01111100, 0b00000000},
-		.b_shift = 17,
+		.b_mask  = {0, 0, 0b00000000, 0b00011111},
+		.b_shift = 27,
 		.b_size  = 5,
 
 		.a_mask  = {0, 0, 0b10000000, 0b00000000},
 		.a_shift = 16,
 		.a_size  = 1,
+
+		.byte_swap = true,
 	},
 };
 
@@ -68,6 +70,8 @@ const PixelFmt tga_rgba32 = {
 			.a_mask  = {0x00, 0x00, 0x00, 0xff},
 			.a_shift = 24,
 			.a_size  = 8,
+
+			.invert_alpha = true,
 		},
 	};
 

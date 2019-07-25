@@ -26,7 +26,7 @@ namespace OSn
 			uint8 red;
 			uint8 green;
 			uint8 blue;
-			uint8 alpha;	// 0x00 = transparent; 0xff = opaque
+			uint8 alpha;	// 0x00 = opaque; 0xff = transparent
 		};
 
 		uint32 value;

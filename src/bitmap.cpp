@@ -150,7 +150,7 @@ Bitmap *Bitmap :: convert(const Bitmap *src, const PixelFmt *fmt, Bitmap *out)
 		{
 			memcpy((uint8 *) &in_val + (4 - src->format->bypp), src->bytes + (y * src->pitch) + (x * src->format->bypp), src->format->bypp);
 			out_val = PixelFmt::convert(in_val, src->format, fmt);
-			memcpy(converted + (y * src->width * fmt->bypp) + (x * fmt->bypp), (uint8 *) &out_val + (4 - fmt->bypp), fmt->bypp);
+			memcpy(converted + (y * src->width * fmt->bypp) + (x * fmt->bypp), (uint8 *) &out_val + 4 - fmt->bypp, fmt->bypp);
 		}
 	}
 

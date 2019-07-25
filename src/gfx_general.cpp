@@ -1,9 +1,9 @@
-/* Compile: clang++ -o gfx_general *.o */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <endian.h>
+
+#include <base/macros.h>
 
 #include "../headers/sysgfx.h"
 #include "../headers/tga_file.h"
@@ -45,7 +45,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		PixelFmt *format;
 		format       = (PixelFmt *) malloc(sizeof(PixelFmt));
 		format->bpp  = header.bpp;
-		format->bypp = header.bpp / 8;
+		format->bypp = b_ceil(header.bpp, 8);
 		format->mode = PixelFmt::INDEXED;
 
 		format->pallette.size   = header.cmap_info.length;
@@ -72,6 +72,12 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	else
 	{
 		bitmap->format = (PixelFmt *) TGAHeader::get_pixelfmt(header.bpp);
+
+		if (bitmap->format == NULL)
+		{
+			delete bitmap;
+			return NULL;
+		}
 	}
 
 	bitmap->width  = header.width;
@@ -121,9 +127,29 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	return bitmap;
 }
 
-bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
+Bitmap *GFX::read_tga(const char *path, TGAMeta *meta)
 {
-	if (!file) return false;
+	FILE *file = fopen(path, "r");
+
+	if (!file) return NULL;
+
+	Bitmap *bmp = GFX::read_tga(file, meta);
+
+	fclose(file);
+
+	return bmp;
+}
+
+error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
+{
+	if (!file)
+		return E_NULLPTR;
+
+	/* Check if the pixel format is compatible with the file format */
+	if (bmp->format != &tga_rgba16 &&
+		bmp->format != &tga_rgb24  &&
+		bmp->format != &tga_rgba32)
+		return E_BADFMT;
 
 	/* Compose the header */
 	TGAHeader header;
@@ -150,7 +176,7 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	header.y_orig = (meta != NULL) ? meta->y_orig : 0;
 
 	header.bpp = bmp->format->bpp;
-	header.image_descr = TGA_ORIGIN_TOP; // FIXME!!!
+	header.image_descr = TGA_ORIGIN_TOP & TGA_ORIGIN_LEFT;
 
 	/* Write the header */
 	fwrite(&header, sizeof(TGAHeader), 1, file);
@@ -161,50 +187,53 @@ bool GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 		for (uint16 i = 0; i < bmp->format->pallette.size; i++)
 		{
 			uint32 color = PixelFmt::convert(bmp->format->pallette.colors[i].value, &Color32::format, &tga_rgba32);
-			color = htobe32(color = color);
 			fwrite(&color, 4, 1, file);
 		}
 	}
 
-	/* Write image data */
-	uint8 *line_bswapped = (uint8 *) malloc(bmp->width * bmp->format->bypp);
-
 	// Since the bitmap data may be padded (pitch != width * fmt->bypp), we need to write it line by line
 	for (uint8 *line = bmp->bytes; line < bmp->bytes + (bmp->pitch * bmp->height); line += bmp->pitch)
 	{
-		if (bmp->format == &tga_rgba16)
-			bswap_data(line, line_bswapped, bmp->width, bmp->format->bypp);
-		else
-			memcpy(line_bswapped, line, bmp->width * bmp->format->bypp);
-
-		fwrite(line_bswapped, bmp->width, bmp->format->bypp, file);
+		fwrite(line, bmp->width, bmp->format->bypp, file);
 	}
 
-	free(line_bswapped);
-
-	return true;
+	return E_OK;
 }
 
-void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size)
+error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 {
-	/* This function splits an array into blocks `item_size` bytes in size,	*
-	 * and and flips order of the bytes within those blocks, whilst keeping	*
-	 * the order of the blocks. This function has two uses:					*
-	 *  - executing `bswapxx()` on an array of multiple values.				*
-	 *  - byte-swapping an integer of which the size is not known until		*
-	 *    runtime.															*/
+	FILE *file = fopen(path, "w");
 
-	for (uint8 *cur_src = src, *cur_dest = dest; cur_src - src < item_count * item_size; cur_src++, cur_dest++)
-	{
-		/* `cur_src` and `cur_dest` point to the current item that	*
-		 * we are byte-swapping.									*/
+	if (!file) return E_ERROR;
 
-		for (uint8 i = 0; i < item_size; i++)
-		{
-			cur_dest[i] = cur_src[item_size - i];
-		}
-	}
+	error_t rc = GFX::write_tga(file, bmp, meta);
+
+	fclose(file);
+
+	return rc;
 }
+
+// Doesn't work properly
+//void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size)
+//{
+//	/* This function splits an array into blocks `item_size` bytes in size,	*
+//	 * and and flips order of the bytes within those blocks, whilst keeping	*
+//	 * the order of the blocks. This function has two uses:					*
+//	 *  - executing `bswapxx()` on an array of multiple values.				*
+//	 *  - byte-swapping an integer of which the size is not known until		*
+//	 *    runtime.															*/
+//
+//	for (uint8 *cur_src = src, *cur_dest = dest; cur_src - src < item_count * item_size; cur_src++, cur_dest++)
+//	{
+//		/* `cur_src` and `cur_dest` point to the current item that	*
+//		 * we are byte-swapping.									*/
+//
+//		for (uint8 i = 0; i < item_size; i++)
+//		{
+//			cur_dest[i] = cur_src[item_size - i];
+//		}
+//	}
+//}
 
 int main(int argc, char **argv)
 {
@@ -218,9 +247,8 @@ int main(int argc, char **argv)
 	Bitmap *img16 = Bitmap::convert(bmp, &tga_rgba16);	// Convert to 16-bit format and back to verify that conversion works.
 	Bitmap *result32 = Bitmap::convert(img16, &tga_rgba32);
 
-	FILE *out_file = fopen("out.tga", "w");
-	GFX::write_tga(out_file, result32);
-	fclose(out_file);
+	GFX::write_tga("out16.tga", img16);
+	GFX::write_tga("out32.tga", result32);
 
 	delete bmp;
 	delete img16;
