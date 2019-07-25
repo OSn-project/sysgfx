@@ -77,9 +77,12 @@ const PixelFmt tga_rgba32 = {
 
 const PixelFmt *TGAHeader :: get_pixelfmt(uint8 bpp)
 {
-	if (bpp == 16) return &tga_rgba16;
-	if (bpp == 24) return &tga_rgb24;
-	if (bpp == 32) return &tga_rgba32;
+	switch (bpp)
+	{
+		case 16: return &tga_rgba16;
+		case 24: return &tga_rgb24;
+		case 32: return &tga_rgba32;
 
-	return NULL;
+		default: return NULL;
+	}
 }
