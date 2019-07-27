@@ -146,7 +146,8 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	/* Check if the pixel format is compatible with the file format */
 	if (bmp->format != &tga_rgba16 &&
 		bmp->format != &tga_rgb24  &&
-		bmp->format != &tga_rgba32)
+		bmp->format != &tga_rgba32 &&
+		bmp->format->mode != PixelFmt::INDEXED)
 		return E_BADFMT;
 
 	/* Compose the header */
@@ -235,23 +236,11 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 
 int main(int argc, char **argv)
 {
-	FILE *in_file = fopen(argc > 1 ? argv[1] : ".junk/gradient.tga", "r");
-	Bitmap *bmp = GFX::read_tga(in_file);//new Bitmap(200, 100, &tga_rgba16);
-	fclose(in_file);
+	Bitmap *indexed = GFX::read_tga(".junk/notes.tga");
 
-	Bitmap *img16 = Bitmap::convert(bmp, &tga_rgba16);      // Convert to 16-bit format and back to verify that conversion works.
-	Bitmap *result32 = Bitmap::convert(img16, &tga_rgba32);
+	GFX::write_tga("out.tga", indexed);
 
-	GFX::write_tga("out16.tga", img16);
-	GFX::write_tga("out32.tga", result32);
-
-	delete bmp;
-	delete img16;
-	delete result32;
+	delete indexed;
 
 	return 0;
 }
-
-/*
- * TODO: value lowest not highest in dword.
- */
