@@ -43,10 +43,10 @@ namespace OSn
 			};
 
 		public:
-			Bitmap();
+			Bitmap();	// Initializes a bitmap with no buffer or pixel format
 //			Bitmap(const Bitmap *bmp);
 //			Bitmap(const Bitmap *bmp, const Rect *area);
-			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);
+			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);	// Initializes a bitmap with a buffer of the specified dimensions of the given pixel format. Buffer is not cleared to 0s by default.
 			~Bitmap();
 
 			inline bool integrity() const { return (this->format != NULL && this->data != NULL); }

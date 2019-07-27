@@ -44,8 +44,8 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 
 		PixelFmt *format;
 		format       = (PixelFmt *) malloc(sizeof(PixelFmt));
-		format->bpp  = header.bpp;
-		format->bypp = b_ceil(header.bpp, 8);
+		format->bpp  = 8;
+		format->bypp = 1;
 		format->mode = PixelFmt::INDEXED;
 
 		format->pallette.size   = header.cmap_info.length;
@@ -54,15 +54,13 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		/* Read the colors from the color map and convert them to Color32s */
 		const PixelFmt *cmap_fmt = TGAHeader::get_pixelfmt(header.cmap_info.bpp);
 
-		fseek(file, sizeof(TGAHeader) + header.id_len, SEEK_SET);	// Seek to the color map
+		fseek(file, sizeof(TGAHeader) + header.id_len, SEEK_SET);	// Seek to the color map (comes after the header
 
 		for (uint16 i = 0; i < header.cmap_info.length; i++)
 		{
-			uint32 color = 0;
-			fread(&color, cmap_fmt->bypp, 1, file);
-			color = be32toh(color);
-			color >>= 32 - cmap_fmt->bpp;				// A 24-bit color would be read into the lowest 3 of the 4 bytes in memory, however we want this to be the other way round.
-			format->pallette.colors[i].value = PixelFmt::convert(color, cmap_fmt, &Color32::format);
+			dword colorval = 0;
+			fread(&colorval, cmap_fmt->bypp, 1, file);
+			format->pallette.colors[i] = PixelFmt::decode(colorval, cmap_fmt);
 		}
 
 		/* Tell the bitmap that it owns its format pointer. */
@@ -241,10 +239,7 @@ int main(int argc, char **argv)
 	Bitmap *bmp = GFX::read_tga(in_file);//new Bitmap(200, 100, &tga_rgba16);
 	fclose(in_file);
 
-//	Rect rect = {20, 30, 20+10, 30+10};
-//	GFX::fill_rect(bmp, &rect, RGBA(0x0d0d0dff));
-
-	Bitmap *img16 = Bitmap::convert(bmp, &tga_rgba16);	// Convert to 16-bit format and back to verify that conversion works.
+	Bitmap *img16 = Bitmap::convert(bmp, &tga_rgba16);      // Convert to 16-bit format and back to verify that conversion works.
 	Bitmap *result32 = Bitmap::convert(img16, &tga_rgba32);
 
 	GFX::write_tga("out16.tga", img16);

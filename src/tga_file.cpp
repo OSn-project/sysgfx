@@ -9,20 +9,20 @@ const PixelFmt tga_rgba16 = {
 	.mode  = PixelFmt::RGBA,
 
 	.rgba = {
-		.r_mask  = {0, 0, 0b01111100, 0b00000000},
-		.r_shift = 17,
+		.r_mask  = {0b01111100, 0b00000000},	// Remaining 2 bytes are 0
+		.r_shift = 1,
 		.r_size  = 5,
 
-		.g_mask  = {0, 0, 0b00000011, 0b11100000},
-		.g_shift = 22,
+		.g_mask  = {0b00000011, 0b11100000},
+		.g_shift = 6,
 		.g_size  = 5,
 
-		.b_mask  = {0, 0, 0b00000000, 0b00011111},
-		.b_shift = 27,
+		.b_mask  = {0b00000000, 0b00011111},
+		.b_shift = 11,
 		.b_size  = 5,
 
-		.a_mask  = {0, 0, 0b10000000, 0b00000000},
-		.a_shift = 16,
+		.a_mask  = {0b10000000, 0b00000000},
+		.a_shift = 0,
 		.a_size  = 1,
 
 		.byte_swap = true,
@@ -35,16 +35,16 @@ const PixelFmt tga_rgb24 = {
 	.mode = PixelFmt::RGBA,
 
 	.rgba = {
-		.b_mask  = {0x00, 0xff, 0x00, 0x00},
-		.b_shift = 8,
+		.b_mask  = {0xff, 0x00, 0x00},
+		.b_shift = 0,
 		.b_size  = 8,
 
-		.g_mask  = {0x00, 0x00, 0xff, 0x00},
-		.g_shift = 16,
+		.g_mask  = {0x00, 0xff, 0x00},
+		.g_shift = 8,
 		.g_size  = 8,
 
-		.r_mask  = {0x00, 0x00, 0x00, 0xff},
-		.r_shift = 24,
+		.r_mask  = {0x00, 0x00, 0xff},
+		.r_shift = 16,
 		.r_size  = 8,
 	},
 };

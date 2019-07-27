@@ -88,7 +88,7 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	/* First swap the bytes if necessary */
 	if (in_fmt->rgba.byte_swap)
 	{
-		swap_bytes(bytes + 4 - in_fmt->bypp, in_fmt->bypp);
+		swap_bytes(bytes, in_fmt->bypp);
 	}
 
 	/* A step-by-step explanation of the following code.
@@ -165,14 +165,14 @@ dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 
 	if (out_fmt->rgba.a_size != 0)	// Only write the alpha channel if the format supports it.
 	{
-		out.bytes[out_fmt->rgba.a_shift / 8]     |= col.alpha >> (    out_fmt->rgba.a_shift % 8);
+		out.bytes[out_fmt->rgba.a_shift / 8]     |= col.alpha >> (    out_fmt->rgba.a_shift % 8);	// TODO: Could & with the bitmask to be 100% certain that only the designated bits are set.
 		out.bytes[out_fmt->rgba.a_shift / 8 + 1] |= col.alpha << (8 - out_fmt->rgba.a_shift % 8);
 	}
 
 	/* Swap the bytes if format is little-endian */
 	if (out_fmt->rgba.byte_swap)
 	{
-		swap_bytes(&out.bytes[4 - out_fmt->bypp], out_fmt->bypp);
+		swap_bytes(out.bytes, out_fmt->bypp);
 	}
 
 	return out.val;

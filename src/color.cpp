@@ -35,16 +35,16 @@ const GFX::PixelFmt Color24::format = {
 	.mode = GFX::PixelFmt::RGBA,
 
 	.rgba = {
-		.r_mask  = {0x00, 0xff, 0x00, 0x00},
-		.r_shift = 8,
+		.r_mask  = {0xff, 0x00, 0x00},		// In reality, r_mask is 4 bytes long, but since this is a 3-byte format we only set the first three. The last byte is automatically set to zero.
+		.r_shift = 0,
 		.r_size  = 8,
 
-		.g_mask  = {0x00, 0x00, 0xff, 0x00},
-		.g_shift = 16,
+		.g_mask  = {0x00, 0xff, 0x00},
+		.g_shift = 8,
 		.g_size  = 8,
 
-		.b_mask  = {0x00, 0x00, 0x00, 0xff},
-		.b_shift = 24,
+		.b_mask  = {0x00, 0x00, 0xff},
+		.b_shift = 16,
 		.b_size  = 8,
 	},
 };
