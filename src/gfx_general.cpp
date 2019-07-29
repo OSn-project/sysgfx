@@ -2,15 +2,77 @@
 #include <string.h>
 #include <stdlib.h>
 #include <endian.h>
-
 #include <base/macros.h>
+#include <base/misc.h>
+#include <float.h>
+#include <math.h>
 
 #include "../headers/sysgfx.h"
 #include "../headers/tga_file.h"
 
 using namespace OSn;
 
-void bswap_data(uint8 *src, uint8 *dest, uint32 item_count, uint8 item_size);
+inline int sq(int i) { return i * i; }
+
+uint8 closest_color(Color32 orig, GFX::Palette *pal)	// Hey boi look 'ere: https://www.bisqwit.iki.fi/story/howto/dither/jy/
+{
+	/* Get the index of the color in the palette that is the most similar to the specified color. */
+
+	uint16 closest_idx  = 0;
+	float  closest_loss = FLT_MAX;
+
+	for (uint16 i = 0; i < pal->size; i++)
+	{
+		Color32 col = pal->colors[i];
+		float  loss = sqrt(sq(orig.red - col.red) + sq(orig.green - col.green) + sq(orig.blue - col.blue));		// Sorry no alpha
+
+		if (loss < closest_loss)
+		{
+			closest_idx = i;
+			closest_loss = loss;
+		}
+	}
+
+	return closest_idx;
+}
+
+Bitmap *GFX::quantize(Bitmap *bmp, GFX::Palette *pal, Bitmap *out)
+{
+	uint8 *quantized = (uint8 *) malloc(bmp->width * bmp->height);
+
+	for (int16 y = 0; y < bmp->height; y++)
+	{
+		for (int16 x = 0; x < bmp->width; x++)
+		{
+			Color32 pixel_col = bmp->get_rgb(x, y);
+
+			quantized[y * bmp->width + x] = closest_color(pixel_col, pal);
+		}
+	}
+
+	/* Create a PixelFmt for the bitmap */
+	PixelFmt *new_fmt = (PixelFmt *) malloc(sizeof(PixelFmt));
+
+	new_fmt->bpp  = 8;
+	new_fmt->bypp = 1;
+
+	new_fmt->mode = PixelFmt::INDEXED;
+
+	new_fmt->palette.size = pal->size;
+	new_fmt->palette.colors = (Color32 *) memdup(pal->colors, pal->size * sizeof(Color32));
+
+	/* Now install the data into the output bitmap */
+	if (! out) out = bmp;
+
+	out->width  = bmp->width;
+	out->height = bmp->height;
+	out->pitch  = bmp->width;
+
+	out->set_format(new_fmt);
+	out->set_data(quantized);
+
+	return out;
+}
 
 void GFX::vflip(Bitmap *bmp)
 {
@@ -21,7 +83,7 @@ void GFX::vflip(Bitmap *bmp)
 		memcpy(dest, src, bmp->pitch);
 	}
 
-	bmp->set(flipped);
+	bmp->set_data(flipped);
 }
 
 // TODO: RLE support, Grayscale support, Indexed support
@@ -40,7 +102,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	if (header.is_indexed())
 	{
 		/* If the bitmap is indexed then we need to create its own format struct	*
-		 * as each image may have a different pallette.								*/
+		 * as each image may have a different palette.								*/
 
 		PixelFmt *format;
 		format       = (PixelFmt *) malloc(sizeof(PixelFmt));
@@ -48,8 +110,8 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		format->bypp = 1;
 		format->mode = PixelFmt::INDEXED;
 
-		format->pallette.size   = header.cmap_info.length;
-		format->pallette.colors = (Color32 *) malloc(header.cmap_info.length * sizeof(Color32));
+		format->palette.size   = header.cmap_info.length;
+		format->palette.colors = (Color32 *) malloc(header.cmap_info.length * sizeof(Color32));
 
 		/* Read the colors from the color map and convert them to Color32s */
 		const PixelFmt *cmap_fmt = TGAHeader::get_pixelfmt(header.cmap_info.bpp);
@@ -60,7 +122,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		{
 			dword colorval = 0;
 			fread(&colorval, cmap_fmt->bypp, 1, file);
-			format->pallette.colors[i] = PixelFmt::decode(colorval, cmap_fmt);
+			format->palette.colors[i] = PixelFmt::decode(colorval, cmap_fmt);
 		}
 
 		/* Tell the bitmap that it owns its format pointer. */
@@ -160,8 +222,8 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	if (bmp->format->mode == PixelFmt::INDEXED)
 	{
 		header.cmap_info.first_entry_idx = 0;
-		header.cmap_info.length = bmp->format->pallette.size;
-		header.cmap_info.bpp    = 32;	// The header will be 32-bit regardless of whether any of the pallette colors have transparency or not.
+		header.cmap_info.length = bmp->format->palette.size;
+		header.cmap_info.bpp    = 32;	// The header will be 32-bit regardless of whether any of the palette colors have transparency or not.
 	}
 	else
 	{
@@ -183,9 +245,9 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	/* Write the color map */
 	if (bmp->format->mode == PixelFmt::INDEXED)
 	{
-		for (uint16 i = 0; i < bmp->format->pallette.size; i++)
+		for (uint16 i = 0; i < bmp->format->palette.size; i++)
 		{
-			uint32 color = PixelFmt::convert(bmp->format->pallette.colors[i].value, &Color32::format, &tga_rgba32);
+			dword color = PixelFmt::convert(bmp->format->palette.colors[i].value, &Color32::format, &tga_rgba32);
 			fwrite(&color, 4, 1, file);
 		}
 	}
@@ -234,13 +296,45 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 //	}
 //}
 
+Color32 idx16_colors[] = {
+	RGBA(  0,   0,   0),
+	RGBA(128,   0,   0),
+	RGBA(  0, 128,   0),
+	RGBA(128, 128,   0),
+	RGBA(  0,   0, 128),
+	RGBA(128,   0, 128),
+	RGBA(  0, 128, 128),
+	RGBA(192, 192, 192),
+	RGBA(128, 128, 128),
+	RGBA(255,   0,   0),
+	RGBA(  0, 255,   0),
+	RGBA(255, 255,   0),
+	RGBA(  0,   0, 255),
+	RGBA(255,   0, 255),
+	RGBA(  0, 255, 255),
+	RGBA(255, 255, 255),
+};
+
+GFX::PixelFmt idx16 = {
+	.bpp  = 4,
+	.bypp = 1,
+	.mode = GFX::PixelFmt::INDEXED,
+
+	.palette = {
+		.size = 16,
+		.colors = idx16_colors,
+	},
+};
+
 int main(int argc, char **argv)
 {
-	Bitmap *indexed = GFX::read_tga(".junk/notes.tga");
+	Bitmap *img = GFX::read_tga(".junk/MARBLES.TGA");
 
-	GFX::write_tga("out.tga", indexed);
+	img = GFX::quantize(img, &idx16, img);
 
-	delete indexed;
+	GFX::write_tga("indexed.tga", img);
+
+	delete img;
 
 	return 0;
 }

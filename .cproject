@@ -79,19 +79,27 @@
                             							
                             <tool id="cdt.managedbuild.tool.llvm.cpp.linker.base.661809813" name="LLVM Clang C++ linker" superClass="cdt.managedbuild.tool.llvm.cpp.linker.base">
                                 								
-                                <option defaultValue="false" id="llvm.c.link.option.nativeCBackEnd.909966735" name="Create native binary (with C backend code generator)" superClass="llvm.c.link.option.nativeCBackEnd" valueType="boolean"/>
+                                <option defaultValue="false" id="llvm.c.link.option.nativeCBackEnd.909966735" name="Create native binary (with C backend code generator)" superClass="llvm.c.link.option.nativeCBackEnd" useByScannerDiscovery="false" valueType="boolean"/>
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="llvm.c.link.option.libs.1564432671" name="Libraries (-l)" superClass="llvm.c.link.option.libs" valueType="libs">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="llvm.c.link.option.libs.1564432671" name="Libraries (-l)" superClass="llvm.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
                                     									
                                     <listOptionValue builtIn="false" value="stdc++"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="m"/>
                                     								
                                 </option>
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="llvm.c.link.option.paths.1717117714" name="Library search path (-L)" superClass="llvm.c.link.option.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="llvm.c.link.option.paths.1717117714" name="Library search path (-L)" superClass="llvm.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/7/"/>
                                     									
                                     <listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/7/x32/"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="llvm.c.link.option.userobjs.1378183081" name="Other bytecode files" superClass="llvm.c.link.option.userobjs" useByScannerDiscovery="false" valueType="userObjs">
+                                    									
+                                    <listOptionValue builtIn="false" value="/actual-home/albert/Projects/OSn/root/libs/libbase/src/libbase.a"/>
                                     								
                                 </option>
                                 								

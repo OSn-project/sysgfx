@@ -10,8 +10,7 @@
 #include <osndef.h>
 #include <endian.h>
 
-#define RGBA(C) htobe32(C)	// This allows the use of 32-bit integers as HTML-style RGBA literals. For example, dark yellow would be RGBA(0xffff0000)
-#define RGB(C) RGBA(((C) << 8) & 0x000000ff)
+#include <base/macros.h>
 
 namespace OSn
 {
@@ -34,6 +33,9 @@ namespace OSn
 		static const GFX::PixelFmt format;
 	};
 
+	inline Color32 RGBA(uint8 r, uint8 g, uint8 b, uint8 a = 0);
+	inline Color32 RGBAf(float r, float g, float b, float a = 0);
+
 	union __attribute__((packed)) Color24
 	{
 		struct __attribute__((packed)) {
@@ -46,6 +48,32 @@ namespace OSn
 
 		static const GFX::PixelFmt format;
 	};
+
+	/* Inline functions */
+
+	inline Color32 RGBA(uint8 r, uint8 g, uint8 b, uint8 a)
+	{
+		Color32 col;
+
+		col.red   = r;
+		col.green = g;
+		col.blue  = b;
+		col.alpha = a;
+
+		return col;
+	}
+
+	inline Color32 RGBAf(float r, float g, float b, float a)
+	{
+		Color32 col;
+
+		col.red   = b_min(b_max(0, r), 1) * 255;
+		col.green = b_min(b_max(0, g), 1) * 255;
+		col.blue  = b_min(b_max(0, b), 1) * 255;
+		col.alpha = b_min(b_max(0, a), 1) * 255;
+
+		return col;
+	}
 }
 
 #endif

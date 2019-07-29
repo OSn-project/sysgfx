@@ -14,10 +14,10 @@ namespace OSn
 		class Raster
 		{
 		public:
-			uint32 width, height;
+			int16 width, height;
 		
 		public:
-			virtual void *get_pixel(uint32 x, uint32 y) const = 0;
+			virtual void *get_pixel(int16 x, int16 y) const = 0;
 
 			virtual ~Raster() {};
 		};
@@ -52,13 +52,16 @@ namespace OSn
 			inline bool integrity() const { return (this->format != NULL && this->data != NULL); }
 			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
 
-			void set(void *data);
+			void set_data  (owning void *data);
+			void set_data_u(       void *data);		// Un/not-owning version of `set_data`
+			void set_format  (owning PixelFmt *fmt);
+			void set_format_u(       PixelFmt *fmt);
 
-			void *get_pixel(uint32 x, uint32 y) const;		// Returns a pointer to the memory location of the pixel at the given coordinates. Returns NULL for out-of-bounds coordinates.
-			bool  get_pixel(uint32 x, uint32 y, dword *out);	// Copy the value of the given pixel into the highest-in-memory bytes of the given integer. Does not convert format. Returns false for out-of-bounds coordinates.
+			void *get_pixel(int16 x, int16 y) const;		// Returns a pointer to the memory location of the pixel at the given coordinates. Returns NULL for out-of-bounds coordinates.
+			Color32 get_rgb(int16 x, int16 y) const;
 			static void set_pixel(uint8 *pixel, PixelFmt *fmt, dword value);	// Sets the pixel at the given location in memory to the given
 
-			void to_rgb(PixelFmt *fmt, Bitmap *out) const;		// This is always a lossless operation, unlike `rgb -> indexed`.
+			void to_rgb(PixelFmt *fmt, Bitmap *out = NULL) const;		// This is always a lossless operation, unlike `rgb -> indexed`.
 			static Bitmap *convert(const Bitmap *source, const PixelFmt *fmt, Bitmap *out = NULL);	// Converts the source bitmap's data to the given format. Returns a pointer to the resulting image (must be freed). Destination image may be set using `out` argument. Returns NULL if either source or destination format is indexed.
 
 			static void delete_fmt(Bitmap *bmp);

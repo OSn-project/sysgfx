@@ -1,7 +1,9 @@
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <osndef.h>
 #include <byteswap.h>
+#include <base/misc.h>
 
 #include "../headers/pixelfmt.h"
 
@@ -192,6 +194,30 @@ dword PixelFmt :: convert(dword in, const PixelFmt *in_fmt, const PixelFmt *out_
 	uint32 out = PixelFmt::convert(in_val, in_fmt, out_fmt);
 	memcpy(out_ptr, &out + (sizeof(uint32) - in_fmt->bypp), out_fmt->bypp);
 }*/
+
+owning PixelFmt *PixelFmt :: copy(const PixelFmt *fmt)
+{
+	PixelFmt *copy = (PixelFmt *) malloc(sizeof(PixelFmt));
+
+	copy->mode = fmt->mode;
+
+	copy->bpp  = fmt->bpp;
+	copy->bypp = fmt->bypp;
+
+	switch (fmt->mode)
+	{
+	case PixelFmt::RGBA:
+		memcpy(&copy->rgba, &fmt->rgba, sizeof(RGBADef));
+		break;
+
+	case PixelFmt::INDEXED:
+		copy->palette.size   = fmt->palette.size;
+		copy->palette.colors = (Color32 *) memdup(fmt->palette.colors, fmt->palette.size * sizeof(Color32));
+		break;
+	}
+
+	return copy;
+}
 
 bool PixelFmt :: compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b)
 {

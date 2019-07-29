@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <osndef.h>
 #include <string.h>
+#include <assert.h>
 #include <base/misc.h>
 
 #include "../headers/bitmap.h"
 
+using namespace OSn;
 using namespace OSn::GFX;
 
 Bitmap :: Bitmap()
@@ -32,31 +34,55 @@ Bitmap :: Bitmap(uint32_t width, uint32_t height, const PixelFmt *fmt)
 
 Bitmap :: ~Bitmap()
 {
-	if (this->flags & BMP_OWNFMT)	free((void *) this->format);
-	if (this->flags & BMP_OWNDATA)	free(this->data);
+	Bitmap::delete_fmt(this);
+	Bitmap::delete_data(this);
 }
 
-void Bitmap :: set(void *data)
+void Bitmap :: set_data(void *data)
 {
-	if (this->flags & BMP_OWNDATA)
-		free(this->data);
+	Bitmap::delete_data(this);
 
-	this->data = data;
+	this->data   = data;
+	this->flags |= BMP_OWNDATA;
 }
 
-void *Bitmap :: get_pixel(uint32 x, uint32 y) const
+void Bitmap :: set_data_u(void *data)
+{
+	Bitmap::delete_data(this);
+
+	this->data   = data;
+	this->flags  = ~BMP_OWNDATA & this->flags;	// We don't own the data if it's const
+}
+
+void Bitmap :: set_format(PixelFmt *fmt)
+{
+	Bitmap::delete_fmt(this);
+
+	this->format  = fmt;
+	this->flags  |= BMP_OWNFMT;
+}
+
+void Bitmap :: set_format_u(PixelFmt *fmt)
+{
+	Bitmap::delete_fmt(this);
+
+	this->format  = fmt;
+	this->flags   = ~BMP_OWNFMT & this->flags;
+}
+
+void *Bitmap :: get_pixel(int16 x, int16 y) const
 {
 	return this->bytes + (y * this->pitch) + (x * this->format->bypp);
 }
 
-bool Bitmap :: get_pixel(uint32 x, uint32 y, dword *out)
+Color32 Bitmap :: get_rgb(int16 x, int16 y) const
 {
-	void *pixel = this->bytes + (y * this->pitch) + (x * this->format->bypp);
+	if (x < 0 || x > this->width)  return RGBA(0,0,0);
+	if (y < 0 || y > this->height) return RGBA(0,0,0);
 
-	memcpy(out + (4 - this->format->bypp), pixel, this->format->bypp);
-//	*out = (pixel - 4 + this->format.bypp)			// Align so that the bytes of the pixel are on the right of the dword
+	dword *pixel = (dword *) &this->bytes[y * this->pitch + x * this->format->bypp];
 
-	return true;
+	return PixelFmt::decode(*pixel, this->format);
 }
 
 void Bitmap :: set_pixel(uint8 *_pixel, PixelFmt *fmt, dword value)
@@ -135,10 +161,8 @@ Bitmap *Bitmap :: convert(const Bitmap *src, const PixelFmt *fmt, Bitmap *out)
 	if (! src) return NULL;
 	if (! fmt) return NULL;
 
-	if (out == NULL)
-	{
-		out = new Bitmap(src->width, src->height, fmt);		// TODO: Format is not changed if out bitmap is given.
-	}														// TODO: Pixel mem needlessly allocated just to be replaced later
+	assert(src->format->mode == PixelFmt::RGBA);
+	assert(fmt->mode         == PixelFmt::RGBA);
 
 	uint8 *converted = (uint8 *) malloc(src->width * fmt->bypp * src->height);
 
@@ -154,7 +178,28 @@ Bitmap *Bitmap :: convert(const Bitmap *src, const PixelFmt *fmt, Bitmap *out)
 		}
 	}
 
-	out->set(converted);
+	/* Now install the data into the output bitmap */
+	if (! out) out = new Bitmap(src->width, src->height, fmt);
+
+	out->set_data(converted);
+	out->set_format(PixelFmt::copy(fmt));
 
 	return out;
+}
+
+void Bitmap :: delete_fmt(Bitmap *bmp)
+{
+	if (! (bmp->flags & BMP_OWNFMT)) return;	// Don't free the format if it's not ours!
+
+	if (bmp->format->mode == PixelFmt::INDEXED)
+		free(bmp->format->palette.colors);
+
+	free(bmp->format);
+}
+
+void Bitmap :: delete_data(Bitmap *bmp)
+{
+	if (! (bmp->flags & BMP_OWNDATA)) return;
+
+	free(bmp->data);
 }
