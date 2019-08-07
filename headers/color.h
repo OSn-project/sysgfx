@@ -33,8 +33,9 @@ namespace OSn
 		static const GFX::PixelFmt format;
 	};
 
-	inline Color32 RGBA(uint8 r, uint8 g, uint8 b, uint8 a = 0);
-	inline Color32 RGBAf(float r, float g, float b, float a = 0);
+	inline Color32 RGBA(uint32 hexcode);
+	inline Color32 RGBA(uint8 r, uint8 g, uint8 b, uint8 a = 255);
+	inline Color32 RGBAf(float r, float g, float b, float a = 1);
 
 	union __attribute__((packed)) Color24
 	{
@@ -50,6 +51,18 @@ namespace OSn
 	};
 
 	/* Inline functions */
+
+	inline Color32 RGBA(uint32 hexcode)
+	{
+		Color32 col;
+
+		col.red   = hexcode & 0xff000000 >> 24;
+		col.green = hexcode & 0x00ff0000 >> 16;
+		col.blue  = hexcode & 0x0000ff00 >>  8;
+		col.alpha = hexcode & 0x000000ff >>  0;
+
+		return col;
+	}
 
 	inline Color32 RGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 	{

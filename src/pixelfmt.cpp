@@ -41,6 +41,35 @@ uint8 *PixelFmt::expand_table[9] = {
 	expand_8b,
 };
 
+/* Reference counting */
+#include <stdio.h>
+PixelFmt *PixelFmt :: ref(PixelFmt *fmt)
+{
+	fmt->_refcount++;
+	printf("pixelfmt %p referenced. _refcount = %d\n", fmt, fmt->_refcount);
+	return fmt;
+}
+
+PixelFmt *PixelFmt :: unref(PixelFmt *fmt)
+{printf("pixelfmt %p unref.", fmt);
+	if (fmt->_refcount == 0)	// This check needs to come first to prevent the integer from underflowing.
+	{printf("\tfreed\n", fmt);
+		if (fmt->_malloced)
+		{
+			if (fmt->mode == PixelFmt::INDEXED) free(fmt->palette.colors);
+			free(fmt);
+		}
+	}
+	else	// If there still *are* references to the struct AND it hasn't been freed.
+	{
+		fmt->_refcount--;printf("\t_refcount = %d\n", fmt->_refcount);
+	}
+
+	return fmt;
+}
+
+/* */
+
 static void bswap_3bytes(uint8 *i)
 {
 	/* Swap the bytes of the referenced 24-bit integer */
@@ -115,9 +144,6 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	uint8 a_val = (	(bytes[in_fmt->rgba.a_shift / 8]     & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8])     << (    in_fmt->rgba.a_shift % 8) |
 					(bytes[in_fmt->rgba.a_shift / 8 + 1] & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8 + 1]) >> (8 - in_fmt->rgba.a_shift % 8)) >> (8 - in_fmt->rgba.a_size);
 
-//	uint8 a_val =	((bytes[in_fmt->rgba.a_shift / 8]     & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8])     << (    (in_fmt->rgba.a_shift+in_fmt->rgba.a_size) % 8)) |
-//					((bytes[in_fmt->rgba.a_shift / 8 + 1] & in_fmt->rgba.a_mask[in_fmt->rgba.a_shift / 8 + 1]) >> (8 - (in_fmt->rgba.a_shift+in_fmt->rgba.a_size) % 8));
-
 	/* Expand the color intensities to the range 0-255 */
 	out.red   = PixelFmt::expand_table[in_fmt->rgba.r_size][r_val];
 	out.green = PixelFmt::expand_table[in_fmt->rgba.g_size][g_val];
@@ -128,7 +154,7 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 		out.alpha = 255 - out.alpha;
 
 	if (in_fmt->rgba.a_size == 0)
-		out.alpha = 0;				// If the source format does not have an alpha channel, assume that the color is opaque.
+		out.alpha = 255;				// If the source format does not have an alpha channel, assume that the color is opaque.
 
 	return out;
 }
@@ -195,29 +221,29 @@ dword PixelFmt :: convert(dword in, const PixelFmt *in_fmt, const PixelFmt *out_
 	memcpy(out_ptr, &out + (sizeof(uint32) - in_fmt->bypp), out_fmt->bypp);
 }*/
 
-owning PixelFmt *PixelFmt :: copy(const PixelFmt *fmt)
-{
-	PixelFmt *copy = (PixelFmt *) malloc(sizeof(PixelFmt));
-
-	copy->mode = fmt->mode;
-
-	copy->bpp  = fmt->bpp;
-	copy->bypp = fmt->bypp;
-
-	switch (fmt->mode)
-	{
-	case PixelFmt::RGBA:
-		memcpy(&copy->rgba, &fmt->rgba, sizeof(RGBADef));
-		break;
-
-	case PixelFmt::INDEXED:
-		copy->palette.size   = fmt->palette.size;
-		copy->palette.colors = (Color32 *) memdup(fmt->palette.colors, fmt->palette.size * sizeof(Color32));
-		break;
-	}
-
-	return copy;
-}
+//owning PixelFmt *PixelFmt :: copy(const PixelFmt *fmt)
+//{
+//	PixelFmt *copy = (PixelFmt *) malloc(sizeof(PixelFmt));
+//
+//	copy->mode = fmt->mode;
+//
+//	copy->bpp  = fmt->bpp;
+//	copy->bypp = fmt->bypp;
+//
+//	switch (fmt->mode)
+//	{
+//	case PixelFmt::RGBA:
+//		memcpy(&copy->rgba, &fmt->rgba, sizeof(RGBADef));
+//		break;
+//
+//	case PixelFmt::INDEXED:
+//		copy->palette.size   = fmt->palette.size;
+//		copy->palette.colors = (Color32 *) memdup(fmt->palette.colors, fmt->palette.size * sizeof(Color32));
+//		break;
+//	}
+//
+//	return copy;
+//}
 
 bool PixelFmt :: compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b)
 {

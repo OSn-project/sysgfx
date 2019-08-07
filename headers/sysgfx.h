@@ -22,8 +22,7 @@ namespace OSn
 		void hw_blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect);
 
 		/* Colour conversion */
-		Bitmap        *quantize(Bitmap *bmp, Palette *pal,  Bitmap *out = NULL);
-		inline Bitmap *quantize(Bitmap *bmp, PixelFmt *fmt, Bitmap *out = NULL) { return quantize(bmp, &fmt->palette, out); }
+		Bitmap *quantize(Bitmap *bmp, PixelFmt *palette, Bitmap *out = NULL);	// Allocated a new bitmap if `out` is NULL.
 
 		/* Manipulation */
 		//void hflip(Bitmap *bmp);

@@ -3,7 +3,7 @@
 
 using namespace OSn::GFX;
 
-const PixelFmt tga_rgba16 = {
+/*const*/ PixelFmt tga_rgba16 = {
 	.bpp   = 16,
 	.bypp  = 2,
 	.mode  = PixelFmt::RGBA,
@@ -29,7 +29,7 @@ const PixelFmt tga_rgba16 = {
 	},
 };
 
-const PixelFmt tga_rgb24 = {
+/*const*/ PixelFmt tga_rgb24 = {
 	.bpp  = 24,
 	.bypp = 3,
 	.mode = PixelFmt::RGBA,
@@ -49,7 +49,7 @@ const PixelFmt tga_rgb24 = {
 	},
 };
 
-const PixelFmt tga_rgba32 = {
+/*const*/ PixelFmt tga_rgba32 = {
 		.bpp  = 32,
 		.bypp = 4,
 		.mode = PixelFmt::RGBA,
@@ -70,8 +70,6 @@ const PixelFmt tga_rgba32 = {
 			.a_mask  = {0x00, 0x00, 0x00, 0xff},
 			.a_shift = 24,
 			.a_size  = 8,
-
-			.invert_alpha = true,
 		},
 	};
 

@@ -44,7 +44,7 @@ void GFX::fill_rect(Bitmap *bmp, const Rect *rect, uint32 color)
 
 		for (uint32 x = x1; x <= x2; x++)
 		{
-			Bitmap::set_pixel(pixel, bmp->format, value);
+			Bitmap::set_pixel(pixel, value, bmp->format);
 			pixel += bmp->format->bypp;
 		}
 	}

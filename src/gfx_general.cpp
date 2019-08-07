@@ -11,19 +11,24 @@
 #include "../headers/tga_file.h"
 
 using namespace OSn;
+using namespace OSn::GFX;
 
 inline int sq(int i) { return i * i; }
 
-uint8 closest_color(Color32 orig, GFX::Palette *pal)	// Hey boi look 'ere: https://www.bisqwit.iki.fi/story/howto/dither/jy/
-{
-	/* Get the index of the color in the palette that is the most similar to the specified color. */
+uint8 closest_color(Color32 orig, PixelFmt *fmt)		// Hey boi look 'ere: https://www.bisqwit.iki.fi/story/howto/dither/jy/
+{														// And 'ere:          https://github.com/wjaguar/mtPaint/blob/960cff9ac0ec0834ea358fff49818125b9309d86/src/memory.c#L3016
+	/* Get the index of the color in the format's palette	*
+	 * that is the most similar to the specified colour.	*
+	 * Could be improved by converting to a colourspace		*
+	 * that closer represents human vision (like HSV)		*
+	 * and finding the closest colour in that.				*/
 
 	uint16 closest_idx  = 0;
 	float  closest_loss = FLT_MAX;
 
-	for (uint16 i = 0; i < pal->size; i++)
+	for (uint16 i = 0; i < fmt->palette.size; i++)
 	{
-		Color32 col = pal->colors[i];
+		Color32 col = fmt->palette.colors[i];
 		float  loss = sqrt(sq(orig.red - col.red) + sq(orig.green - col.green) + sq(orig.blue - col.blue));		// Sorry no alpha
 
 		if (loss < closest_loss)
@@ -36,8 +41,11 @@ uint8 closest_color(Color32 orig, GFX::Palette *pal)	// Hey boi look 'ere: https
 	return closest_idx;
 }
 
-Bitmap *GFX::quantize(Bitmap *bmp, GFX::Palette *pal, Bitmap *out)
+Bitmap *GFX::quantize(Bitmap *bmp, PixelFmt *target_fmt, Bitmap *out)
 {
+	if (bmp->format->mode != PixelFmt::RGBA) return NULL;
+	if (target_fmt->mode != PixelFmt::INDEXED) return NULL;
+
 	uint8 *quantized = (uint8 *) malloc(bmp->width * bmp->height);
 
 	for (int16 y = 0; y < bmp->height; y++)
@@ -46,29 +54,18 @@ Bitmap *GFX::quantize(Bitmap *bmp, GFX::Palette *pal, Bitmap *out)
 		{
 			Color32 pixel_col = bmp->get_rgb(x, y);
 
-			quantized[y * bmp->width + x] = closest_color(pixel_col, pal);
+			quantized[y * bmp->width + x] = closest_color(pixel_col, target_fmt);
 		}
 	}
 
-	/* Create a PixelFmt for the bitmap */
-	PixelFmt *new_fmt = (PixelFmt *) malloc(sizeof(PixelFmt));
-
-	new_fmt->bpp  = 8;
-	new_fmt->bypp = 1;
-
-	new_fmt->mode = PixelFmt::INDEXED;
-
-	new_fmt->palette.size = pal->size;
-	new_fmt->palette.colors = (Color32 *) memdup(pal->colors, pal->size * sizeof(Color32));
-
 	/* Now install the data into the output bitmap */
-	if (! out) out = bmp;
+	if (! out) out = new Bitmap;
 
 	out->width  = bmp->width;
 	out->height = bmp->height;
 	out->pitch  = bmp->width;
 
-	out->set_format(new_fmt);
+	out->set_format(target_fmt);
 	out->set_data(quantized);
 
 	return out;
@@ -86,7 +83,7 @@ void GFX::vflip(Bitmap *bmp)
 	bmp->set_data(flipped);
 }
 
-// TODO: RLE support, Grayscale support, Indexed support
+// TODO: RLE support
 
 Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 {
@@ -105,7 +102,9 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		 * as each image may have a different palette.								*/
 
 		PixelFmt *format;
-		format       = (PixelFmt *) malloc(sizeof(PixelFmt));
+		format            = (PixelFmt *) malloc(sizeof(PixelFmt));
+		format->_malloced = true;
+
 		format->bpp  = 8;
 		format->bypp = 1;
 		format->mode = PixelFmt::INDEXED;
@@ -125,13 +124,11 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 			format->palette.colors[i] = PixelFmt::decode(colorval, cmap_fmt);
 		}
 
-		/* Tell the bitmap that it owns its format pointer. */
 		bitmap->format = format;
-		bitmap->flags |= BMP_OWNFMT;
 	}
 	else
 	{
-		bitmap->format = (PixelFmt *) TGAHeader::get_pixelfmt(header.bpp);
+		bitmap->format = PixelFmt::ref((PixelFmt *) TGAHeader::get_pixelfmt(header.bpp));
 
 		if (bitmap->format == NULL)
 		{
@@ -202,7 +199,7 @@ Bitmap *GFX::read_tga(const char *path, TGAMeta *meta)
 
 error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 {
-	if (!file)
+	if (!file || !bmp)
 		return E_NULLPTR;
 
 	/* Check if the pixel format is compatible with the file format */
@@ -328,13 +325,19 @@ GFX::PixelFmt idx16 = {
 
 int main(int argc, char **argv)
 {
-	Bitmap *img = GFX::read_tga(".junk/MARBLES.TGA");
+	Bitmap *img = GFX::read_tga(argc > 1 ? argv[1] : ".junk/google_norle.tga");
 
-	img = GFX::quantize(img, &idx16, img);
+	PixelFmt *my_rgb24 = (PixelFmt *) memdup(&tga_rgb24, sizeof(PixelFmt));
 
-	GFX::write_tga("indexed.tga", img);
+	Bitmap *out = Bitmap::convert(img, my_rgb24);
+	GFX::quantize(out, &idx16, out);
+
+	GFX::write_tga("noalpha.tga", out);
 
 	delete img;
+	delete out;
+
+	PixelFmt::unref(my_rgb24);	// We still have the local reference we created so we need to unref that too.
 
 	return 0;
 }
