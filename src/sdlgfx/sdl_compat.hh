@@ -5,6 +5,7 @@
 #define SRC_SDLGFX_SDL_COMPAT_HH_
 
 #include <osndef.h>
+#include "../../headers/pixelfmt.h"
 
 typedef uint32 Uint32;
 typedef int32  Sint32;
@@ -61,6 +62,7 @@ struct SDL_Surface
     Uint32 flags;               /**< Read-only */
     SDL_PixelFormat _format;	// All allocated at once;
     SDL_PixelFormat *format;    // Points to the above.			/**< Read-only */
+    OSn::GFX::PixelFmt *nformat;		// OSn format for already converted code
     int w, h;                   /**< Read-only */
     int pitch;                  /**< Read-only */
     void *pixels;               /**< Read-write */
@@ -153,6 +155,7 @@ namespace compat
 		/* Convert format */
 		to_sdlfmt(bmp->format, &s->_format);
 		s->format = &s->_format;
+		s->nformat = bmp->format;	// For already converted code
 
 		/* Stuff that Bitmap doesn't support */
 		s->locked = 0; s->lock_data = NULL;

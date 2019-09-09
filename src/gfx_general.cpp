@@ -303,10 +303,10 @@ int main(int argc, char **argv)
 	SDL_Surface sfc;
 	compat::to_sdl(bmp, &sfc);
 
-//	pixelColor(&sfc, 0, 0, 0xff0000ff);
-	pixelColor(&sfc, 20, 10, 0xff0000ff);
-	pixelColor(&sfc, 19, 10, 0xff0000ff);
-	pixelColor(&sfc, 18, 11, 0x00ff00ff);
+//	pixelColor(&sfc, 0, 0, RGBA(255, 0, 0));
+	pixelColor(&sfc, 20, 10, RGBA(255, 0, 0, 0x80));
+	pixelColor(&sfc, 19, 10, RGBA(255, 0, 0, 0x80));
+	pixelColor(&sfc, 18, 11, RGBA(0, 255, 0, 0x80));
 
 	GFX::write_tga("out.tga", bmp);
 	delete bmp;

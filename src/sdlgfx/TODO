@@ -2,3 +2,6 @@
  - SDL_Surface ->OSn::Bitmap
  - r_mask, r_shift
  - UInt32 color (0xRRGGBBAA) -> OSn:Color32
+
+1. Change logic
+2. Rename structures
