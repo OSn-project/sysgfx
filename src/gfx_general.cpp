@@ -293,51 +293,23 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 //	}
 //}
 
-Color32 idx16_colors[] = {
-	RGBA(  0,   0,   0),
-	RGBA(128,   0,   0),
-	RGBA(  0, 128,   0),
-	RGBA(128, 128,   0),
-	RGBA(  0,   0, 128),
-	RGBA(128,   0, 128),
-	RGBA(  0, 128, 128),
-	RGBA(192, 192, 192),
-	RGBA(128, 128, 128),
-	RGBA(255,   0,   0),
-	RGBA(  0, 255,   0),
-	RGBA(255, 255,   0),
-	RGBA(  0,   0, 255),
-	RGBA(255,   0, 255),
-	RGBA(  0, 255, 255),
-	RGBA(255, 255, 255),
-};
-
-GFX::PixelFmt idx16 = {
-	.bpp  = 4,
-	.bypp = 1,
-	.mode = GFX::PixelFmt::INDEXED,
-
-	.palette = {
-		.size = 16,
-		.colors = idx16_colors,
-	},
-};
+#include "sdlgfx/SDL_gfxPrimitives.h"
 
 int main(int argc, char **argv)
 {
-	Bitmap *img = GFX::read_tga(argc > 1 ? argv[1] : ".junk/google_norle.tga");
+	Bitmap *bmp = new Bitmap(320, 240, &tga_rgba16);
+//	Bitmap *bmp = GFX::read_tga(".junk/marbles2.tga");
 
-	PixelFmt *my_rgb24 = (PixelFmt *) memdup(&tga_rgb24, sizeof(PixelFmt));
+	SDL_Surface sfc;
+	compat::to_sdl(bmp, &sfc);
 
-	Bitmap *out = Bitmap::convert(img, my_rgb24);
-	GFX::quantize(out, &idx16, out);
+//	pixelColor(&sfc, 0, 0, 0xff0000ff);
+	pixelColor(&sfc, 20, 10, 0xff0000ff);
+	pixelColor(&sfc, 19, 10, 0xff0000ff);
+	pixelColor(&sfc, 18, 11, 0x00ff00ff);
 
-	GFX::write_tga("noalpha.tga", out);
-
-	delete img;
-	delete out;
-
-	PixelFmt::unref(my_rgb24);	// We still have the local reference we created so we need to unref that too.
+	GFX::write_tga("out.tga", bmp);
+	delete bmp;
 
 	return 0;
 }

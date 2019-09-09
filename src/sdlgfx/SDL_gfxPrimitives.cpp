@@ -33,9 +33,9 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include <string.h>
 
 #include "SDL_gfxPrimitives.h"
-#include "SDL_rotozoom.h"
-#include "SDL_gfxPrimitives_font.h"
-#include "SDL_gfxBlitFunc.h"
+//#include "SDL_rotozoom.h"
+//#include "SDL_gfxPrimitives_font.h"
+//#include "SDL_gfxBlitFunc.h"
 
 /* -===================- */
 
@@ -66,6 +66,265 @@ typedef struct {
 	int quad4;
 	Sint16 last1x, last1y, last2x, last2y, first1x, first1y, first2x, first2y, tempx, tempy;
 } SDL_gfxMurphyIterator;
+
+const uint8 GFX_ALPHA_ADJUST_ARRAY[256] = {
+	0,  /* 0 */
+	15,  /* 1 */
+	22,  /* 2 */
+	27,  /* 3 */
+	31,  /* 4 */
+	35,  /* 5 */
+	39,  /* 6 */
+	42,  /* 7 */
+	45,  /* 8 */
+	47,  /* 9 */
+	50,  /* 10 */
+	52,  /* 11 */
+	55,  /* 12 */
+	57,  /* 13 */
+	59,  /* 14 */
+	61,  /* 15 */
+	63,  /* 16 */
+	65,  /* 17 */
+	67,  /* 18 */
+	69,  /* 19 */
+	71,  /* 20 */
+	73,  /* 21 */
+	74,  /* 22 */
+	76,  /* 23 */
+	78,  /* 24 */
+	79,  /* 25 */
+	81,  /* 26 */
+	82,  /* 27 */
+	84,  /* 28 */
+	85,  /* 29 */
+	87,  /* 30 */
+	88,  /* 31 */
+	90,  /* 32 */
+	91,  /* 33 */
+	93,  /* 34 */
+	94,  /* 35 */
+	95,  /* 36 */
+	97,  /* 37 */
+	98,  /* 38 */
+	99,  /* 39 */
+	100,  /* 40 */
+	102,  /* 41 */
+	103,  /* 42 */
+	104,  /* 43 */
+	105,  /* 44 */
+	107,  /* 45 */
+	108,  /* 46 */
+	109,  /* 47 */
+	110,  /* 48 */
+	111,  /* 49 */
+	112,  /* 50 */
+	114,  /* 51 */
+	115,  /* 52 */
+	116,  /* 53 */
+	117,  /* 54 */
+	118,  /* 55 */
+	119,  /* 56 */
+	120,  /* 57 */
+	121,  /* 58 */
+	122,  /* 59 */
+	123,  /* 60 */
+	124,  /* 61 */
+	125,  /* 62 */
+	126,  /* 63 */
+	127,  /* 64 */
+	128,  /* 65 */
+	129,  /* 66 */
+	130,  /* 67 */
+	131,  /* 68 */
+	132,  /* 69 */
+	133,  /* 70 */
+	134,  /* 71 */
+	135,  /* 72 */
+	136,  /* 73 */
+	137,  /* 74 */
+	138,  /* 75 */
+	139,  /* 76 */
+	140,  /* 77 */
+	141,  /* 78 */
+	141,  /* 79 */
+	142,  /* 80 */
+	143,  /* 81 */
+	144,  /* 82 */
+	145,  /* 83 */
+	146,  /* 84 */
+	147,  /* 85 */
+	148,  /* 86 */
+	148,  /* 87 */
+	149,  /* 88 */
+	150,  /* 89 */
+	151,  /* 90 */
+	152,  /* 91 */
+	153,  /* 92 */
+	153,  /* 93 */
+	154,  /* 94 */
+	155,  /* 95 */
+	156,  /* 96 */
+	157,  /* 97 */
+	158,  /* 98 */
+	158,  /* 99 */
+	159,  /* 100 */
+	160,  /* 101 */
+	161,  /* 102 */
+	162,  /* 103 */
+	162,  /* 104 */
+	163,  /* 105 */
+	164,  /* 106 */
+	165,  /* 107 */
+	165,  /* 108 */
+	166,  /* 109 */
+	167,  /* 110 */
+	168,  /* 111 */
+	168,  /* 112 */
+	169,  /* 113 */
+	170,  /* 114 */
+	171,  /* 115 */
+	171,  /* 116 */
+	172,  /* 117 */
+	173,  /* 118 */
+	174,  /* 119 */
+	174,  /* 120 */
+	175,  /* 121 */
+	176,  /* 122 */
+	177,  /* 123 */
+	177,  /* 124 */
+	178,  /* 125 */
+	179,  /* 126 */
+	179,  /* 127 */
+	180,  /* 128 */
+	181,  /* 129 */
+	182,  /* 130 */
+	182,  /* 131 */
+	183,  /* 132 */
+	184,  /* 133 */
+	184,  /* 134 */
+	185,  /* 135 */
+	186,  /* 136 */
+	186,  /* 137 */
+	187,  /* 138 */
+	188,  /* 139 */
+	188,  /* 140 */
+	189,  /* 141 */
+	190,  /* 142 */
+	190,  /* 143 */
+	191,  /* 144 */
+	192,  /* 145 */
+	192,  /* 146 */
+	193,  /* 147 */
+	194,  /* 148 */
+	194,  /* 149 */
+	195,  /* 150 */
+	196,  /* 151 */
+	196,  /* 152 */
+	197,  /* 153 */
+	198,  /* 154 */
+	198,  /* 155 */
+	199,  /* 156 */
+	200,  /* 157 */
+	200,  /* 158 */
+	201,  /* 159 */
+	201,  /* 160 */
+	202,  /* 161 */
+	203,  /* 162 */
+	203,  /* 163 */
+	204,  /* 164 */
+	205,  /* 165 */
+	205,  /* 166 */
+	206,  /* 167 */
+	206,  /* 168 */
+	207,  /* 169 */
+	208,  /* 170 */
+	208,  /* 171 */
+	209,  /* 172 */
+	210,  /* 173 */
+	210,  /* 174 */
+	211,  /* 175 */
+	211,  /* 176 */
+	212,  /* 177 */
+	213,  /* 178 */
+	213,  /* 179 */
+	214,  /* 180 */
+	214,  /* 181 */
+	215,  /* 182 */
+	216,  /* 183 */
+	216,  /* 184 */
+	217,  /* 185 */
+	217,  /* 186 */
+	218,  /* 187 */
+	218,  /* 188 */
+	219,  /* 189 */
+	220,  /* 190 */
+	220,  /* 191 */
+	221,  /* 192 */
+	221,  /* 193 */
+	222,  /* 194 */
+	222,  /* 195 */
+	223,  /* 196 */
+	224,  /* 197 */
+	224,  /* 198 */
+	225,  /* 199 */
+	225,  /* 200 */
+	226,  /* 201 */
+	226,  /* 202 */
+	227,  /* 203 */
+	228,  /* 204 */
+	228,  /* 205 */
+	229,  /* 206 */
+	229,  /* 207 */
+	230,  /* 208 */
+	230,  /* 209 */
+	231,  /* 210 */
+	231,  /* 211 */
+	232,  /* 212 */
+	233,  /* 213 */
+	233,  /* 214 */
+	234,  /* 215 */
+	234,  /* 216 */
+	235,  /* 217 */
+	235,  /* 218 */
+	236,  /* 219 */
+	236,  /* 220 */
+	237,  /* 221 */
+	237,  /* 222 */
+	238,  /* 223 */
+	238,  /* 224 */
+	239,  /* 225 */
+	240,  /* 226 */
+	240,  /* 227 */
+	241,  /* 228 */
+	241,  /* 229 */
+	242,  /* 230 */
+	242,  /* 231 */
+	243,  /* 232 */
+	243,  /* 233 */
+	244,  /* 234 */
+	244,  /* 235 */
+	245,  /* 236 */
+	245,  /* 237 */
+	246,  /* 238 */
+	246,  /* 239 */
+	247,  /* 240 */
+	247,  /* 241 */
+	248,  /* 242 */
+	248,  /* 243 */
+	249,  /* 244 */
+	249,  /* 245 */
+	250,  /* 246 */
+	250,  /* 247 */
+	251,  /* 248 */
+	251,  /* 249 */
+	252,  /* 250 */
+	252,  /* 251 */
+	253,  /* 252 */
+	253,  /* 253 */
+	254,  /* 254 */
+	255   /* 255 */
+};
 
 /* ----- Defines for pixel clipping tests */
 
@@ -268,233 +527,233 @@ int fastPixelRGBANolock(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g,
 	return (fastPixelColorNolock(dst, x, y, color));
 }
 
-///*!
-//\brief Internal pixel drawing function with alpha blending where input color in in destination format.
-//
-//Contains two alternative 32 bit alpha blending routines which can be enabled at the source
-//level with the defines DEFAULT_ALPHA_PIXEL_ROUTINE or EXPERIMENTAL_ALPHA_PIXEL_ROUTINE.
-//Only the bits up to the surface depth are significant in the color value.
-//
-//\param dst The surface to draw on.
-//\param x The horizontal coordinate of the pixel.
-//\param y The vertical position of the pixel.
-//\param color The color value of the pixel to draw.
-//\param alpha The blend factor to apply while drawing.
-//
-//\returns Returns 0 on success, -1 on failure.
-//*/
-//int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
-//{
-//	SDL_PixelFormat *format;
-//	Uint32 Rmask, Gmask, Bmask, Amask;
-//	Uint32 Rshift, Gshift, Bshift, Ashift;
-//	Uint32 sR, sG, sB;
-//	Uint32 dR, dG, dB, dA;
-//
-//	if (dst == NULL)
-//	{
-//		return (-1);
-//	}
-//
-//	if (x >= clip_xmin(dst) && x <= clip_xmax(dst) &&
-//		y >= clip_ymin(dst) && y <= clip_ymax(dst))
-//	{
-//
-//		format = dst->format;
-//
-//		switch (format->BytesPerPixel) {
-//		case 1:
-//			{		/* Assuming 8-bpp */
-//				Uint8 *pixel = (Uint8 *) dst->pixels + y * dst->pitch + x;
-//				if (alpha == 255) {
-//					*pixel = color;
-//				} else {
-//					Uint8 R, G, B;
-//					SDL_Palette *palette = format->palette;
-//					SDL_Color *colors = palette->colors;
-//					SDL_Color dColor = colors[*pixel];
-//					SDL_Color sColor = colors[color];
-//					dR = dColor.r;
-//					dG = dColor.g;
-//					dB = dColor.b;
-//					sR = sColor.r;
-//					sG = sColor.g;
-//					sB = sColor.b;
-//
-//					R = dR + ((sR - dR) * alpha >> 8);
-//					G = dG + ((sG - dG) * alpha >> 8);
-//					B = dB + ((sB - dB) * alpha >> 8);
-//
-//					*pixel = SDL_MapRGB(format, R, G, B);
-//				}
-//			}
-//			break;
-//
-//		case 2:
-//			{		/* Probably 15-bpp or 16-bpp */
-//				Uint16 *pixel = (Uint16 *) dst->pixels + y * dst->pitch / 2 + x;
-//				if (alpha == 255) {
-//					*pixel = color;
-//				} else {
-//					Uint16 R, G, B, A;
-//					Uint16 dc = *pixel;
-//
-//					Rmask = format->Rmask;
-//					Gmask = format->Gmask;
-//					Bmask = format->Bmask;
-//					Amask = format->Amask;
-//
-//					dR = (dc & Rmask);
-//					dG = (dc & Gmask);
-//					dB = (dc & Bmask);
-//
-//					R = (dR + (((color & Rmask) - dR) * alpha >> 8)) & Rmask;
-//					G = (dG + (((color & Gmask) - dG) * alpha >> 8)) & Gmask;
-//					B = (dB + (((color & Bmask) - dB) * alpha >> 8)) & Bmask;
-//					*pixel = R | G | B;
-//					if (Amask!=0) {
-//						dA = (dc & Amask);
-//						A = (dA + (((color & Amask) - dA) * alpha >> 8)) & Amask;
-//						*pixel |= A;
-//					}
-//				}
-//			}
-//			break;
-//
-//		case 3:
-//			{		/* Slow 24-bpp mode, usually not used */
-//				Uint8 R, G, B;
-//				Uint8 Rshift8, Gshift8, Bshift8;
-//				Uint8 *pixel = (Uint8 *) dst->pixels + y * dst->pitch + x * 3;
-//
-//				Rshift = format->Rshift;
-//				Gshift = format->Gshift;
-//				Bshift = format->Bshift;
-//
-//				Rshift8 = Rshift >> 3;
-//				Gshift8 = Gshift >> 3;
-//				Bshift8 = Bshift >> 3;
-//
-//				sR = (color >> Rshift) & 0xFF;
-//				sG = (color >> Gshift) & 0xFF;
-//				sB = (color >> Bshift) & 0xFF;
-//
-//				if (alpha == 255) {
-//					*(pixel + Rshift8) = sR;
-//					*(pixel + Gshift8) = sG;
-//					*(pixel + Bshift8) = sB;
-//				} else {
-//					dR = *((pixel) + Rshift8);
-//					dG = *((pixel) + Gshift8);
-//					dB = *((pixel) + Bshift8);
-//
-//					R = dR + ((sR - dR) * alpha >> 8);
-//					G = dG + ((sG - dG) * alpha >> 8);
-//					B = dB + ((sB - dB) * alpha >> 8);
-//
-//					*((pixel) + Rshift8) = R;
-//					*((pixel) + Gshift8) = G;
-//					*((pixel) + Bshift8) = B;
-//				}
-//			}
-//			break;
-//
-//#ifdef DEFAULT_ALPHA_PIXEL_ROUTINE
-//
-//		case 4:
-//			{		/* Probably :-) 32-bpp */
-//				Uint32 R, G, B, A;
-//				Uint32 *pixel = (Uint32 *) dst->pixels + y * dst->pitch / 4 + x;
-//				if (alpha == 255) {
-//					*pixel = color;
-//				} else {
-//					Uint32 dc = *pixel;
-//
-//					Rmask = format->Rmask;
-//					Gmask = format->Gmask;
-//					Bmask = format->Bmask;
-//					Amask = format->Amask;
-//
-//					Rshift = format->Rshift;
-//					Gshift = format->Gshift;
-//					Bshift = format->Bshift;
-//					Ashift = format->Ashift;
-//
-//					dR = (dc & Rmask) >> Rshift;
-//					dG = (dc & Gmask) >> Gshift;
-//					dB = (dc & Bmask) >> Bshift;
-//
-//
-//					R = ((dR + ((((color & Rmask) >> Rshift) - dR) * alpha >> 8)) << Rshift) & Rmask;
-//					G = ((dG + ((((color & Gmask) >> Gshift) - dG) * alpha >> 8)) << Gshift) & Gmask;
-//					B = ((dB + ((((color & Bmask) >> Bshift) - dB) * alpha >> 8)) << Bshift) & Bmask;
-//					*pixel = R | G | B;
-//					if (Amask!=0) {
-//						dA = (dc & Amask) >> Ashift;
-//
-//#ifdef ALPHA_PIXEL_ADDITIVE_BLEND
-//						A = (dA | GFX_ALPHA_ADJUST_ARRAY[alpha & 255]) << Ashift; // make destination less transparent...
-//#else
-//						A = ((dA + ((((color & Amask) >> Ashift) - dA) * alpha >> 8)) << Ashift) & Amask;
-//#endif
-//						*pixel |= A;
-//					}
-//				}
-//			}
-//			break;
-//#endif
-//
-//#ifdef EXPERIMENTAL_ALPHA_PIXEL_ROUTINE
-//
-//		case 4:{		/* Probably :-) 32-bpp */
-//			if (alpha == 255) {
-//				*((Uint32 *) dst->pixels + y * dst->pitch / 4 + x) = color;
-//			} else {
-//				Uint32 *pixel = (Uint32 *) dst->pixels + y * dst->pitch / 4 + x;
-//				Uint32 dR, dG, dB, dA;
-//				Uint32 dc = *pixel;
-//
-//				Uint32 surfaceAlpha, preMultR, preMultG, preMultB;
-//				Uint32 aTmp;
-//
-//				Rmask = format->Rmask;
-//				Gmask = format->Gmask;
-//				Bmask = format->Bmask;
-//				Amask = format->Amask;
-//
-//				dR = (color & Rmask);
-//				dG = (color & Gmask);
-//				dB = (color & Bmask);
-//				dA = (color & Amask);
-//
-//				Rshift = format->Rshift;
-//				Gshift = format->Gshift;
-//				Bshift = format->Bshift;
-//				Ashift = format->Ashift;
-//
-//				preMultR = (alpha * (dR >> Rshift));
-//				preMultG = (alpha * (dG >> Gshift));
-//				preMultB = (alpha * (dB >> Bshift));
-//
-//				surfaceAlpha = ((dc & Amask) >> Ashift);
-//				aTmp = (255 - alpha);
-//				if (A = 255 - ((aTmp * (255 - surfaceAlpha)) >> 8 )) {
-//					aTmp *= surfaceAlpha;
-//					R = (preMultR + ((aTmp * ((dc & Rmask) >> Rshift)) >> 8)) / A << Rshift & Rmask;
-//					G = (preMultG + ((aTmp * ((dc & Gmask) >> Gshift)) >> 8)) / A << Gshift & Gmask;
-//					B = (preMultB + ((aTmp * ((dc & Bmask) >> Bshift)) >> 8)) / A << Bshift & Bmask;
-//				}
-//				*pixel = R | G | B | (A << Ashift & Amask);
-//
-//			}
-//			   }
-//			   break;
-//#endif
-//		}
-//	}
-//
-//	return (0);
-//}
+/*!
+\brief Internal pixel drawing function with alpha blending where input color in in destination format.
+
+Contains two alternative 32 bit alpha blending routines which can be enabled at the source
+level with the defines DEFAULT_ALPHA_PIXEL_ROUTINE or EXPERIMENTAL_ALPHA_PIXEL_ROUTINE.
+Only the bits up to the surface depth are significant in the color value.
+
+\param dst The surface to draw on.
+\param x The horizontal coordinate of the pixel.
+\param y The vertical position of the pixel.
+\param color The color value of the pixel to draw.
+\param alpha The blend factor to apply while drawing.
+
+\returns Returns 0 on success, -1 on failure.
+*/
+int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 color, Uint8 alpha)
+{
+	SDL_PixelFormat *format;
+	Uint32 Rmask, Gmask, Bmask, Amask;
+	Uint32 Rshift, Gshift, Bshift, Ashift;
+	Uint32 sR, sG, sB;
+	Uint32 dR, dG, dB, dA;
+
+	if (dst == NULL)
+	{
+		return (-1);
+	}
+
+	if (x >= clip_xmin(dst) && x <= clip_xmax(dst) &&
+		y >= clip_ymin(dst) && y <= clip_ymax(dst))
+	{
+
+		format = dst->format;
+
+		switch (format->BytesPerPixel) {
+		case 1:
+			{		/* Assuming 8-bpp */
+				Uint8 *pixel = (Uint8 *) dst->pixels + y * dst->pitch + x;
+				if (alpha == 255) {
+					*pixel = color;
+				} else {
+					Uint8 R, G, B;
+					SDL_Palette *palette = format->palette;
+					SDL_Color *colors = palette->colors;
+					SDL_Color dColor = colors[*pixel];
+					SDL_Color sColor = colors[color];
+					dR = dColor.r;
+					dG = dColor.g;
+					dB = dColor.b;
+					sR = sColor.r;
+					sG = sColor.g;
+					sB = sColor.b;
+
+					R = dR + ((sR - dR) * alpha >> 8);
+					G = dG + ((sG - dG) * alpha >> 8);
+					B = dB + ((sB - dB) * alpha >> 8);
+
+					*pixel = SDL_MapRGB(format, R, G, B);
+				}
+			}
+			break;
+
+		case 2:
+			{		/* Probably 15-bpp or 16-bpp */
+				Uint16 *pixel = (Uint16 *) dst->pixels + y * dst->pitch / 2 + x;
+				if (alpha == 255) {
+					*pixel = color;
+				} else {
+					Uint16 R, G, B, A;
+					Uint16 dc = *pixel;
+
+					Rmask = format->Rmask;
+					Gmask = format->Gmask;
+					Bmask = format->Bmask;
+					Amask = format->Amask;
+
+					dR = (dc & Rmask);
+					dG = (dc & Gmask);
+					dB = (dc & Bmask);
+
+					R = (dR + (((color & Rmask) - dR) * alpha >> 8)) & Rmask;
+					G = (dG + (((color & Gmask) - dG) * alpha >> 8)) & Gmask;
+					B = (dB + (((color & Bmask) - dB) * alpha >> 8)) & Bmask;
+					*pixel = R | G | B;
+					if (Amask!=0) {
+						dA = (dc & Amask);
+						A = (dA + (((color & Amask) - dA) * alpha >> 8)) & Amask;
+						*pixel |= A;
+					}
+				}
+			}
+			break;
+
+		case 3:
+			{		/* Slow 24-bpp mode, usually not used */
+				Uint8 R, G, B;
+				Uint8 Rshift8, Gshift8, Bshift8;
+				Uint8 *pixel = (Uint8 *) dst->pixels + y * dst->pitch + x * 3;
+
+				Rshift = format->Rshift;
+				Gshift = format->Gshift;
+				Bshift = format->Bshift;
+
+				Rshift8 = Rshift >> 3;
+				Gshift8 = Gshift >> 3;
+				Bshift8 = Bshift >> 3;
+
+				sR = (color >> Rshift) & 0xFF;
+				sG = (color >> Gshift) & 0xFF;
+				sB = (color >> Bshift) & 0xFF;
+
+				if (alpha == 255) {
+					*(pixel + Rshift8) = sR;
+					*(pixel + Gshift8) = sG;
+					*(pixel + Bshift8) = sB;
+				} else {
+					dR = *((pixel) + Rshift8);
+					dG = *((pixel) + Gshift8);
+					dB = *((pixel) + Bshift8);
+
+					R = dR + ((sR - dR) * alpha >> 8);
+					G = dG + ((sG - dG) * alpha >> 8);
+					B = dB + ((sB - dB) * alpha >> 8);
+
+					*((pixel) + Rshift8) = R;
+					*((pixel) + Gshift8) = G;
+					*((pixel) + Bshift8) = B;
+				}
+			}
+			break;
+
+#ifdef DEFAULT_ALPHA_PIXEL_ROUTINE
+
+		case 4:
+			{		/* Probably :-) 32-bpp */
+				Uint32 R, G, B, A;
+				Uint32 *pixel = (Uint32 *) dst->pixels + y * dst->pitch / 4 + x;
+				if (alpha == 255) {
+					*pixel = color;
+				} else {
+					Uint32 dc = *pixel;
+
+					Rmask = format->Rmask;
+					Gmask = format->Gmask;
+					Bmask = format->Bmask;
+					Amask = format->Amask;
+
+					Rshift = format->Rshift;
+					Gshift = format->Gshift;
+					Bshift = format->Bshift;
+					Ashift = format->Ashift;
+
+					dR = (dc & Rmask) >> Rshift;
+					dG = (dc & Gmask) >> Gshift;
+					dB = (dc & Bmask) >> Bshift;
+
+
+					R = ((dR + ((((color & Rmask) >> Rshift) - dR) * alpha >> 8)) << Rshift) & Rmask;
+					G = ((dG + ((((color & Gmask) >> Gshift) - dG) * alpha >> 8)) << Gshift) & Gmask;
+					B = ((dB + ((((color & Bmask) >> Bshift) - dB) * alpha >> 8)) << Bshift) & Bmask;
+					*pixel = R | G | B;
+					if (Amask!=0) {
+						dA = (dc & Amask) >> Ashift;
+
+#ifdef ALPHA_PIXEL_ADDITIVE_BLEND
+						A = (dA | GFX_ALPHA_ADJUST_ARRAY[alpha & 255]) << Ashift; // make destination less transparent...
+#else
+						A = ((dA + ((((color & Amask) >> Ashift) - dA) * alpha >> 8)) << Ashift) & Amask;
+#endif
+						*pixel |= A;
+					}
+				}
+			}
+			break;
+#endif
+
+#ifdef EXPERIMENTAL_ALPHA_PIXEL_ROUTINE
+
+		case 4:{		/* Probably :-) 32-bpp */
+			if (alpha == 255) {
+				*((Uint32 *) dst->pixels + y * dst->pitch / 4 + x) = color;
+			} else {
+				Uint32 *pixel = (Uint32 *) dst->pixels + y * dst->pitch / 4 + x;
+				Uint32 dR, dG, dB, dA;
+				Uint32 dc = *pixel;
+
+				Uint32 surfaceAlpha, preMultR, preMultG, preMultB;
+				Uint32 aTmp;
+
+				Rmask = format->Rmask;
+				Gmask = format->Gmask;
+				Bmask = format->Bmask;
+				Amask = format->Amask;
+
+				dR = (color & Rmask);
+				dG = (color & Gmask);
+				dB = (color & Bmask);
+				dA = (color & Amask);
+
+				Rshift = format->Rshift;
+				Gshift = format->Gshift;
+				Bshift = format->Bshift;
+				Ashift = format->Ashift;
+
+				preMultR = (alpha * (dR >> Rshift));
+				preMultG = (alpha * (dG >> Gshift));
+				preMultB = (alpha * (dB >> Bshift));
+
+				surfaceAlpha = ((dc & Amask) >> Ashift);
+				aTmp = (255 - alpha);
+				if (A = 255 - ((aTmp * (255 - surfaceAlpha)) >> 8 )) {
+					aTmp *= surfaceAlpha;
+					R = (preMultR + ((aTmp * ((dc & Rmask) >> Rshift)) >> 8)) / A << Rshift & Rmask;
+					G = (preMultG + ((aTmp * ((dc & Gmask) >> Gshift)) >> 8)) / A << Gshift & Gmask;
+					B = (preMultB + ((aTmp * ((dc & Bmask) >> Bshift)) >> 8)) / A << Bshift & Bmask;
+				}
+				*pixel = R | G | B | (A << Ashift & Amask);
+
+			}
+			   }
+			   break;
+#endif
+		}
+	}
+
+	return (0);
+}
 
 /*!
 \brief Pixel draw with blending enabled if a<255.
@@ -6849,3 +7108,12 @@ int pixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, 
 //	return (thickLineColor(dst, x1, y1, x2, y2, width,
 //		((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a));
 //}
+
+/*!
+\brief Alpha adjustment table for custom blitter.
+
+The table provides values for a modified, non-linear
+transfer function which maintain brightness.
+
+*/
+

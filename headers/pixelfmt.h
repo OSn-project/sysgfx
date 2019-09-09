@@ -42,7 +42,7 @@ namespace OSn
 				{
 					/* Red channel */
 					uint8 r_mask[4];	// A mask representing the red component of the pixel value. The bytes of this integer are stored in the order as displayed. (order of descending significance)
-					uint8 r_shift;		// The number of bits to the right of the component in each pixel value
+					uint8 r_shift;		// The number of bits to the right of the component (higher in memory) in each pixel value
 					uint8 r_size;		// The size of the pixel value in bits. Less or equal to 8.
 
 					/* Green channel */
@@ -84,13 +84,34 @@ namespace OSn
 //			static owning PixelFmt *copy(const PixelFmt *fmt);		// Probably not a good idea because some functions compare pointers to check for a format. (eg. `if (bmp->format == &Color32::format) ...`)
 			static bool compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b);
 
-			static Color32 decode(dword val, const PixelFmt *in_fmt);		// Both encode and decode expect the format to not be indexed.
-			static dword   encode(Color32 col, const PixelFmt *out_fmt);
+			static dword        encode(Color32 col, const PixelFmt *out_fmt);
+			static Color32      decode(dword val, const PixelFmt *in_fmt);		// Both encode and decode expect the format to not be indexed.
+			static inline dword encode(uint8& r, uint8& g, uint8& b, uint8& a, const PixelFmt *out_fmt);
+			static inline void  decode(dword val, const PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a);	// Sorry I know they're messy. The'yre needed to make SDL_gfx work.
+
 			static dword   convert(dword val, const PixelFmt *fmt_a, const PixelFmt *fmt_b);	// If the pixel format is less than 32 bpp, the value will occupy the uppermost in memory bits/bytes.
 //			static void convert(uint8 *val_a, const PixelFmt *fmt_a, uint8 *val_b, const PixelFmt *fmt_b);
 
 			static owning PixelFmt *indexed_for(Color32 *pal, size_t size);		// Create an indexed pixelfmt struct for the given colour palette.
 		};
+
+		/* Inlines */
+		inline void PixelFmt :: decode(dword val, const PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a)
+		{
+			Color32 col = PixelFmt::decode(val, in_fmt);
+
+			r = col.red;
+			g = col.green;
+			b = col.blue;
+			a = col.alpha;
+		}
+
+		inline dword PixelFmt :: encode(uint8& r, uint8& g, uint8& b, uint8& a, const PixelFmt *out_fmt)
+		{
+			Color32 col = OSn::RGBA(r, g, b, a);
+			return PixelFmt::encode(col, out_fmt);
+		}
+
 	}
 }
 

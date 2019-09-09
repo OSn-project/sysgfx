@@ -46,14 +46,14 @@ uint8 *PixelFmt::expand_table[9] = {
 PixelFmt *PixelFmt :: ref(PixelFmt *fmt)
 {
 	fmt->_refcount++;
-	printf("pixelfmt %p referenced. _refcount = %d\n", fmt, fmt->_refcount);
+
 	return fmt;
 }
 
 PixelFmt *PixelFmt :: unref(PixelFmt *fmt)
-{printf("pixelfmt %p unref.", fmt);
+{
 	if (fmt->_refcount == 0)	// This check needs to come first to prevent the integer from underflowing.
-	{printf("\tfreed\n", fmt);
+	{
 		if (fmt->_malloced)
 		{
 			if (fmt->mode == PixelFmt::INDEXED) free(fmt->palette.colors);
@@ -62,7 +62,7 @@ PixelFmt *PixelFmt :: unref(PixelFmt *fmt)
 	}
 	else	// If there still *are* references to the struct AND it hasn't been freed.
 	{
-		fmt->_refcount--;printf("\t_refcount = %d\n", fmt->_refcount);
+		fmt->_refcount--;
 	}
 
 	return fmt;
@@ -163,12 +163,7 @@ dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 {
 	assert(out_fmt->mode == PixelFmt::RGBA);
 
-	union {
-		uint8 bytes[4];
-		dword val;
-	} out;
-
-	out.val = 0;
+	dword out = 0;
 
 	/* Invert alpha if necessary */
 	if (out_fmt->rgba.invert_alpha)
@@ -203,7 +198,7 @@ dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 		swap_bytes(out.bytes, out_fmt->bypp);
 	}
 
-	return out.val;
+	return out;
 }
 
 dword PixelFmt :: convert(dword in, const PixelFmt *in_fmt, const PixelFmt *out_fmt)
