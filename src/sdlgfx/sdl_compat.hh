@@ -123,10 +123,10 @@ namespace compat
 		o->BitsPerPixel = i->bpp;
 		o->BytesPerPixel = i->bypp;
 
-		o->Rmask  = be32toh((uint32) *(i->rgba.r_mask));	// SDL stores
-		o->Gmask  = be32toh((uint32) *(i->rgba.g_mask));
-		o->Bmask  = be32toh((uint32) *(i->rgba.b_mask));
-		o->Amask  = be32toh((uint32) *(i->rgba.a_mask));
+		o->Rmask  = be32toh(*((uint32 *) i->rgba.r_mask));	// SDL stores
+		o->Gmask  = be32toh(*((uint32 *) i->rgba.g_mask));
+		o->Bmask  = be32toh(*((uint32 *) i->rgba.b_mask));
+		o->Amask  = be32toh(*((uint32 *) i->rgba.a_mask));
 		o->Rshift = i->rgba.r_shift;
 		o->Gshift = i->rgba.g_shift;
 		o->Bshift = i->rgba.b_shift;

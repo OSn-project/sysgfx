@@ -154,7 +154,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	}
 
 	/* Deal with image origin */
-	if (header.image_descr & TGA_ORIGIN_TOP)
+	if (!(header.image_descr & TGA_ORIGIN_TOP))
 	{
 		GFX::vflip(bitmap);
 	}
@@ -234,7 +234,7 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	header.y_orig = (meta != NULL) ? meta->y_orig : 0;
 
 	header.bpp = bmp->format->bpp;
-	header.image_descr = TGA_ORIGIN_TOP & TGA_ORIGIN_LEFT;
+	header.image_descr = TGA_ORIGIN_TOP | TGA_ORIGIN_LEFT;
 
 	/* Write the header */
 	fwrite(&header, sizeof(TGAHeader), 1, file);
@@ -297,8 +297,8 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 
 int main(int argc, char **argv)
 {
-	Bitmap *bmp = new Bitmap(320, 240, &tga_rgba16);
-//	Bitmap *bmp = GFX::read_tga(".junk/marbles2.tga");
+//	Bitmap *bmp = new Bitmap(320, 240, &tga_rgb24);
+	Bitmap *bmp = GFX::read_tga(".junk/marbles2.tga");
 
 	SDL_Surface sfc;
 	compat::to_sdl(bmp, &sfc);
