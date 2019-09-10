@@ -95,9 +95,9 @@ extern "C" {
 //
 //	/* Filled rectangle (Box) */
 //
-//	SDL_GFXPRIMITIVES_SCOPE int boxColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int boxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
-//		Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+	SDL_GFXPRIMITIVES_SCOPE int boxColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int boxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
+		Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 //
 //	/* Rounded-Corner Filled rectangle (Box) */
 //

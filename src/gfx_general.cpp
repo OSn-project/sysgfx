@@ -298,15 +298,22 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 int main(int argc, char **argv)
 {
 //	Bitmap *bmp = new Bitmap(320, 240, &tga_rgb24);
-	Bitmap *bmp = GFX::read_tga(".junk/marbles2.tga");
+	Bitmap *bmp = GFX::read_tga(".junk/MARBLES.TGA");
 
 	SDL_Surface sfc;
 	compat::to_sdl(bmp, &sfc);
 
-//	pixelColor(&sfc, 0, 0, RGBA(255, 0, 0));
-	pixelColor(&sfc, 20, 10, RGBA(255, 0, 0, 0x80));
-	pixelColor(&sfc, 19, 10, RGBA(255, 0, 0, 0x80));
-	pixelColor(&sfc, 18, 11, RGBA(0, 255, 0, 0x80));
+	uint16 w = 71, inc = 37;
+
+	for (uint16 i = 0; i + w < bmp->width; i += inc)
+	{
+		boxColor(&sfc, i, i, i+w, i+w, RGBA(255, 255, 255, 128));
+	}
+
+	for (uint16 i = 0; i + w < bmp->height; i += w)
+	{
+		boxColor(&sfc, bmp->width - w, i, bmp->width, i+w, RGBA(255, 0, 255, 255 * ((float) i / (float) bmp->height)));
+	}
 
 	GFX::write_tga("out.tga", bmp);
 	delete bmp;
