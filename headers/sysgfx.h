@@ -29,11 +29,11 @@ namespace OSn
 		void vflip(Bitmap *bmp);
 
 		/* Drawing */
-		void fill_rect(Bitmap *bmp, const Rect *rect, uint32 color);	// Fill the given area on the image with the given color. Pass NULL to fill the whole image. Area includes the given `x2` and `y2`.
-		void draw_rect(Bitmap *bmp, const Rect *rect, uint32 color, uint32 borderw = 1);
-
-		void line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
-		void aa_line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
+//		void fill_rect(Bitmap *bmp, const Rect *rect, uint32 color);	// Fill the given area on the image with the given color. Pass NULL to fill the whole image. Area includes the given `x2` and `y2`.
+//		void draw_rect(Bitmap *bmp, const Rect *rect, uint32 color, uint32 borderw = 1);
+//
+//		void line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
+//		void aa_line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
 
 		/* File I/O */
 		Bitmap  *read_tga(FILE *file,       TGAMeta *meta = NULL);

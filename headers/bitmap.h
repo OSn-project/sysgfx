@@ -46,6 +46,7 @@ namespace OSn
 //			Bitmap(const Bitmap *bmp);
 //			Bitmap(const Bitmap *bmp, const Rect *area);
 			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);		// Initializes a bitmap with a buffer of the specified dimensions of the given pixel format. Buffer is not cleared to 0s by default. Increments the reference count of `fmt`.
+			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt, owning void *data);
 			~Bitmap();
 
 			inline bool integrity() const { return (this->format != NULL && this->data != NULL); }
