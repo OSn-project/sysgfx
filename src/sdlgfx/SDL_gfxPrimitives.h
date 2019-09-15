@@ -87,24 +87,24 @@ extern "C" {
 	SDL_GFXPRIMITIVES_SCOPE int rectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
 		Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//	/* Rounded-Corner Rectangle */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int roundedRectangleColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
-//		Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Filled rectangle (Box) */
-//
+	/* Rounded-Corner Rectangle */
+
+	SDL_GFXPRIMITIVES_SCOPE int roundedRectangleColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
+		Sint16 x2, Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Filled rectangle (Box) */
+
 	SDL_GFXPRIMITIVES_SCOPE int boxColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color);
 	SDL_GFXPRIMITIVES_SCOPE int boxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
 		Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Rounded-Corner Filled rectangle (Box) */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int roundedBoxColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int roundedBoxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
-//		Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+
+	/* Rounded-Corner Filled rectangle (Box) */
+
+	SDL_GFXPRIMITIVES_SCOPE int roundedBoxColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 rad, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int roundedBoxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
+		Sint16 y2, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 	/* Line */
 
 	SDL_GFXPRIMITIVES_SCOPE int lineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color);
@@ -164,20 +164,20 @@ extern "C" {
 //	SDL_GFXPRIMITIVES_SCOPE int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
 //		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 //
-//	/* Pie */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
-//		Sint16 start, Sint16 end, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
-//		Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Filled Pie */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledPieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
-//		Sint16 start, Sint16 end, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
-//		Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* Pie */
+
+	SDL_GFXPRIMITIVES_SCOPE int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+		Sint16 start, Sint16 end, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+		Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Filled Pie */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledPieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+		Sint16 start, Sint16 end, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
+		Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 //	/* Trigon */
 //
 //	SDL_GFXPRIMITIVES_SCOPE int trigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
@@ -196,33 +196,33 @@ extern "C" {
 //	SDL_GFXPRIMITIVES_SCOPE int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
 //		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 //
-//	/* Polygon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
-//		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* Polygon */
+
+	SDL_GFXPRIMITIVES_SCOPE int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
+		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 //	/* AA-Polygon */
 //
 //	SDL_GFXPRIMITIVES_SCOPE int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
 //	SDL_GFXPRIMITIVES_SCOPE int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
 //		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 //
-//	/* Filled Polygon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx,
-//		const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+	/* Filled Polygon */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx,
+		const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 //	SDL_GFXPRIMITIVES_SCOPE int texturedPolygon(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface * texture,int texture_dx,int texture_dy);
-//
-//	/* (Note: These MT versions are required for multi-threaded operation.) */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color, int **polyInts, int *polyAllocated);
-//	SDL_GFXPRIMITIVES_SCOPE int filledPolygonRGBAMT(SDL_Surface * dst, const Sint16 * vx,
-//		const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
-//		int **polyInts, int *polyAllocated);
+
+	/* (Note: These MT versions are required for multi-threaded operation.) */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color, int **polyInts, int *polyAllocated);
+	SDL_GFXPRIMITIVES_SCOPE int filledPolygonRGBAMT(SDL_Surface * dst, const Sint16 * vx,
+		const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+		int **polyInts, int *polyAllocated);
 //	SDL_GFXPRIMITIVES_SCOPE int texturedPolygonMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, SDL_Surface * texture,int texture_dx,int texture_dy, int **polyInts, int *polyAllocated);
-//
+
 //	/* Bezier */
 //
 //	SDL_GFXPRIMITIVES_SCOPE int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, OSn::Color32 color);

@@ -63,7 +63,7 @@ typedef struct {
 \brief The structure passed to the internal Murphy iterator.
 */
 typedef struct {
-	Uint32 color;
+	OSn::Color32 color;
 	SDL_Surface *dst;
 	int u, v;		/* delta x , delta y */
 	int ku, kt, kv, kd;	/* loop constants */
@@ -1657,7 +1657,7 @@ int rectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
 	return (rectangleColor
 		(dst, x1, y1, x2, y2, RGBA(r, g, b, a)));
 }
-#if 0
+
 /*!
 \brief Draw rounded-corner rectangle with blending.
 
@@ -1965,7 +1965,7 @@ int roundedBoxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2,
 	return (roundedBoxColor
 		(dst, x1, y1, x2, y2, rad, RGBA(r, g, b, a)));
 }
-#endif
+
 /* --------- Clipping routines for line */
 
 /* Clipping based heavily on code from                       */
@@ -2550,7 +2550,7 @@ with alpha<255.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color, int draw_endpoint)
+int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color, int draw_endpoint)
 {
 	Sint32 xx0, yy0, xx1, yy1;
 	int result;
@@ -2789,7 +2789,7 @@ int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, 
 
 \returns Returns 0 on success, -1 on failure.
 */
-int aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
+int aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color)
 {
 	return (_aalineColor(dst, x1, y1, x2, y2, color, 1));
 }
@@ -2812,7 +2812,7 @@ int aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, U
 int aalineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
 	return (_aalineColor
-		(dst, x1, y1, x2, y2, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, 1));
+		(dst, x1, y1, x2, y2, RGBA(r, g, b, a), 1));
 }
 
 
@@ -2833,7 +2833,7 @@ minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	int result;
@@ -3468,7 +3468,7 @@ Note: The AA-circle routine is based on AA-ellipse with identical radii.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color)
 {
 	return (aaellipseColor(dst, x, y, rad, rad, color));
 }
@@ -3512,7 +3512,7 @@ multiple-hline draw removal and other minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint32 color)
+int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	int result;
@@ -3665,7 +3665,7 @@ multiple-pixel draw removal and other minor speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	int result;
@@ -4044,7 +4044,7 @@ which is based on code from TwinLib.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	Sint16 x1,y1,x2,y2;
@@ -4314,7 +4314,7 @@ and other speedup changes.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color)
+int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	int result;
@@ -4492,7 +4492,7 @@ int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 r
 }
 #endif
 /* ----- pie */
-#if 0
+
 /*!
 \brief Internal float (low-speed) pie-calc implementation by drawing polygons.
 
@@ -4728,7 +4728,7 @@ int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 {
 	return (_pieColor(dst, x, y, rad, start, end, RGBA(r, g, b, a), 1));
 }
-
+#if 0
 /* ------ Trigon */
 
 /*!
@@ -4747,7 +4747,7 @@ Note: Creates vertex array and uses polygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int trigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+int trigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color)
 {
 	Sint16 vx[3];
 	Sint16 vy[3];
@@ -4813,7 +4813,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int aatrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+int aatrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color)
 {
 	Sint16 vx[3];
 	Sint16 vy[3];
@@ -4879,7 +4879,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int filledTrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color)
+int filledTrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color)
 {
 	Sint16 vx[3];
 	Sint16 vy[3];
@@ -4928,7 +4928,7 @@ int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 
 	return(filledPolygonRGBA(dst,vx,vy,3,r,g,b,a));
 }
-
+#endif
 /* ---- Polygon */
 
 /*!
@@ -4942,7 +4942,7 @@ int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 
 \returns Returns 0 on success, -1 on failure.
 */
-int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color)
 {
 	int result;
 	int i;
@@ -5019,7 +5019,7 @@ int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 }
 
 /* ---- AA-Polygon */
-
+#if 0
 /*!
 \brief Draw anti-aliased polygon with alpha blending.
 
@@ -5031,7 +5031,7 @@ int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 
 \returns Returns 0 on success, -1 on failure.
 */
-int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color)
 {
 	int result;
 	int i;
@@ -5106,7 +5106,7 @@ int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n
 	*/
 	return (aapolygonColor(dst, vx, vy, n, RGBA(r, g, b, a)));
 }
-
+#endif
 /* ---- Filled Polygon */
 
 /*!
@@ -5151,7 +5151,7 @@ Note: The last two parameters are optional; but are required for multithreaded o
 
 \returns Returns 0 on success, -1 on failure.
 */
-int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color, int **polyInts, int *polyAllocated)
+int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color, int **polyInts, int *polyAllocated)
 {
 	int result;
 	int i;
@@ -5331,7 +5331,7 @@ int filledPolygonRGBAMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
 	/*
 	* Draw
 	*/
-	return (filledPolygonColorMT(dst, vx, vy, n, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, polyInts, polyAllocated));
+	return (filledPolygonColorMT(dst, vx, vy, n, RGBA(r, g, b, a), polyInts, polyAllocated));
 }
 
 /*!
@@ -5348,7 +5348,7 @@ to use the global vertex cache.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color)
+int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color)
 {
 	/*
 	* Draw
@@ -5375,9 +5375,9 @@ int filledPolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, i
 	/*
 	* Draw
 	*/
-	return (filledPolygonColorMT(dst, vx, vy, n, ((Uint32) r << 24) | ((Uint32) g << 16) | ((Uint32) b << 8) | (Uint32) a, NULL, NULL));
+	return (filledPolygonColorMT(dst, vx, vy, n, RGBA(r, g, b, a), NULL, NULL));
 }
-
+#if 0
 /*!
 \brief Internal function to draw a textured horizontal line.
 
@@ -5862,7 +5862,7 @@ Uses alpha blending if A<255 in color.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int characterColor(SDL_Surface * dst, Sint16 x, Sint16 y, char c, Uint32 color)
+int characterColor(SDL_Surface * dst, Sint16 x, Sint16 y, char c, OSn::Color32 color)
 {
 	Sint16 left, right, top, bottom;
 	Sint16 x1, y1, x2, y2;
@@ -6053,7 +6053,7 @@ of the character width of the current global font.
 
 \returns Returns 0 on success, -1 on failure.
 */
-int stringColor(SDL_Surface * dst, Sint16 x, Sint16 y, const char *s, Uint32 color)
+int stringColor(SDL_Surface * dst, Sint16 x, Sint16 y, const char *s, OSn::Color32 color)
 {
 	int result = 0;
 	Sint16 curx = x;
@@ -6175,7 +6175,7 @@ double _evaluateBezier (double *data, int ndata, double t)
 
 \returns Returns 0 on success, -1 on failure.
 */
-int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint32 color)
+int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, int s, OSn::Color32 color)
 {
 	int result;
 	int i;
@@ -6762,7 +6762,7 @@ void _murphyWideline(SDL_gfxMurphyIterator *m, Sint16 x1, Sint16 y1, Sint16 x2, 
 
 \returns Returns 0 on success, -1 on failure.
 */
-int thickLineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 width, Uint32 color)
+int thickLineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8 width, OSn::Color32 color)
 {
 	int wh;
 	SDL_gfxMurphyIterator m;

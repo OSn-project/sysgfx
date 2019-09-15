@@ -56,10 +56,10 @@ namespace OSn
 	{
 		Color32 col;
 
-		col.red   = hexcode & 0xff000000 >> 24;
-		col.green = hexcode & 0x00ff0000 >> 16;
-		col.blue  = hexcode & 0x0000ff00 >>  8;
-		col.alpha = hexcode & 0x000000ff >>  0;
+		col.red   = (hexcode & 0xff000000) >> 24;
+		col.green = (hexcode & 0x00ff0000) >> 16;
+		col.blue  = (hexcode & 0x0000ff00) >>  8;
+		col.alpha = (hexcode & 0x000000ff) >>  0;
 
 		return col;
 	}

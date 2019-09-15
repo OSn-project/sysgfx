@@ -294,20 +294,19 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 //}
 
 #include "sdlgfx/SDL_gfxPrimitives.h"
+#include <time.h>
 
 int main(int argc, char **argv)
 {
+	srand(time(NULL));
 	Bitmap *bmp = new Bitmap(320, 240, &tga_rgb24);
 
 	SDL_Surface sfc;
 	compat::to_sdl(bmp, &sfc);
 
-	arcColor(&sfc, 80, 80, 35, 180, 270, RGBA(128, 0, 128));
-
-	for (int i = 0; i < 6; i++)
-	{
-		lineColor(&sfc, rand()%320, rand()%240, rand()%320, rand()%240, RGBA(255, i%2?0:255, i%2?255:0));
-	}
+	roundedBoxColor(&sfc, 6, 76, 43, 155, 7, RGBA(0xff80a0ff));
+	roundedRectangleColor(&sfc, 16, 86, 53, 165, 7, RGBA(0x80a0a0ff));
+	filledPieColor(&sfc, 300, 200, 50, 180, 270, RGBA(0x800080ff));
 
 	GFX::write_tga("out.tga", bmp);
 	delete bmp;
