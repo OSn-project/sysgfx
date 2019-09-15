@@ -2524,7 +2524,7 @@ int lineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint
 	*/
 	return (lineColor(dst, x1, y1, x2, y2, RGBA(r, g, b, a)));
 }
-#if 0
+
 /* AA Line */
 
 #define AAlevels 256
@@ -2917,12 +2917,7 @@ int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 
 		/*
 		* Setup color
 		*/
-		colorptr = (Uint8 *) & color;
-		if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-			color = SDL_MapRGBA(dst->format, colorptr[0], colorptr[1], colorptr[2], colorptr[3]);
-		} else {
-			color = SDL_MapRGBA(dst->format, colorptr[3], colorptr[2], colorptr[1], colorptr[0]);
-		}
+		dword pixval = PixelFmt::encode(color, dst->nformat);
 
 		/*
 		* Draw
@@ -2933,26 +2928,26 @@ int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 
 			if (cx > 0) {
 				xpcx = x + cx;
 				xmcx = x - cx;
-				result |= fastPixelColorNolock(dst, xmcx, ypcy, color);
-				result |= fastPixelColorNolock(dst, xpcx, ypcy, color);
-				result |= fastPixelColorNolock(dst, xmcx, ymcy, color);
-				result |= fastPixelColorNolock(dst, xpcx, ymcy, color);
+				result |= fastPixelColorNolock(dst, xmcx, ypcy, pixval);
+				result |= fastPixelColorNolock(dst, xpcx, ypcy, pixval);
+				result |= fastPixelColorNolock(dst, xmcx, ymcy, pixval);
+				result |= fastPixelColorNolock(dst, xpcx, ymcy, pixval);
 			} else {
-				result |= fastPixelColorNolock(dst, x, ymcy, color);
-				result |= fastPixelColorNolock(dst, x, ypcy, color);
+				result |= fastPixelColorNolock(dst, x, ymcy, pixval);
+				result |= fastPixelColorNolock(dst, x, ypcy, pixval);
 			}
 			xpcy = x + cy;
 			xmcy = x - cy;
 			if ((cx > 0) && (cx != cy)) {
 				ypcx = y + cx;
 				ymcx = y - cx;
-				result |= fastPixelColorNolock(dst, xmcy, ypcx, color);
-				result |= fastPixelColorNolock(dst, xpcy, ypcx, color);
-				result |= fastPixelColorNolock(dst, xmcy, ymcx, color);
-				result |= fastPixelColorNolock(dst, xpcy, ymcx, color);
+				result |= fastPixelColorNolock(dst, xmcy, ypcx, pixval);
+				result |= fastPixelColorNolock(dst, xpcy, ypcx, pixval);
+				result |= fastPixelColorNolock(dst, xmcy, ymcx, pixval);
+				result |= fastPixelColorNolock(dst, xpcy, ymcx, pixval);
 			} else if (cx == 0) {
-				result |= fastPixelColorNolock(dst, xmcy, y, color);
-				result |= fastPixelColorNolock(dst, xpcy, y, color);
+				result |= fastPixelColorNolock(dst, xmcy, y, pixval);
+				result |= fastPixelColorNolock(dst, xpcy, y, pixval);
 			}
 			/*
 			* Update
@@ -3058,7 +3053,7 @@ int circleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8
 	*/
 	return (circleColor(dst, x, y, rad, RGBA(r, g, b, a)));
 }
-#endif
+
 /* ----- Arc */
 
 /*!
@@ -6258,7 +6253,7 @@ int bezierRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, i
 	return (bezierColor(dst, vx, vy, n, s, RGBA(r, g, b, a)));
 }
 
-
+#endif
 /*!
 \brief Internal function to initialize the Bresenham line iterator.
 
@@ -6452,7 +6447,7 @@ void _murphyIteration(SDL_gfxMurphyIterator *m, Uint8 miter,
 	int ftmp1, ftmp2;
 	Uint16 m1x, m1y, m2x, m2y;
 	Uint16 fix, fiy, lax, lay, curx, cury;
-	Uint16 px[4], py[4];
+	Sint16 px[4], py[4];
 	SDL_gfxBresenhamIterator b;
 
 	if (miter > 1) {
@@ -6814,4 +6809,4 @@ The table provides values for a modified, non-linear
 transfer function which maintain brightness.
 
 */
-#endif
+

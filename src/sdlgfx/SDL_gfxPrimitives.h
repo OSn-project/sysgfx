@@ -111,23 +111,23 @@ extern "C" {
 	SDL_GFXPRIMITIVES_SCOPE int lineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
 		Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//	/* AA Line */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int aalineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
-//		Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Thick Line */
-//	SDL_GFXPRIMITIVES_SCOPE int thickLineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
-//		Uint8 width, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int thickLineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
-//		Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Circle */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int circleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* AA Line */
+
+	SDL_GFXPRIMITIVES_SCOPE int aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int aalineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1,
+		Sint16 x2, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Thick Line */
+	SDL_GFXPRIMITIVES_SCOPE int thickLineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
+		Uint8 width, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int thickLineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
+		Uint8 width, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Circle */
+
+	SDL_GFXPRIMITIVES_SCOPE int circleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int circleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 	/* Arc */
 
 	SDL_GFXPRIMITIVES_SCOPE int arcColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end, OSn::Color32 color);
