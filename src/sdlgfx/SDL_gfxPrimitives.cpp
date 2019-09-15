@@ -468,7 +468,7 @@ int fastPixelColorNolockNoclip(SDL_Surface * dst, Sint16 x, Sint16 y, dword colo
 
 \returns Returns 0 on success, -1 on failure.
 */
-int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, dword color)
+int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, dword pixval)
 {
 	int result;
 
@@ -481,7 +481,7 @@ int fastPixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, dword color)
 		}
 	}
 
-	result = fastPixelColorNolock(dst, x, y, color);
+	result = fastPixelColorNolock(dst, x, y, pixval);
 
 	/*
 	* Unlock surface 
@@ -754,7 +754,7 @@ int _putPixelAlpha(SDL_Surface *dst, Sint16 x, Sint16 y, dword color, Uint8 alph
 \param dst The surface to draw on.
 \param x X (horizontal) coordinate of the pixel.
 \param y Y (vertical) coordinate of the pixel.
-\param color The color value of the pixel to draw (0xRRGGBBAA). 
+\param color The color value of the pixel to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -800,7 +800,7 @@ int pixelColor(SDL_Surface * dst, Sint16 x, Sint16 y, OSn::Color32 color)
 \param dst The surface to draw on.
 \param x X (horizontal) coordin	ate of the pixel.
 \param y Y (vertical) coordinate of the pixel.
-\param color The color value of the pixel to draw (0xRRGGBBAA). 
+\param color The color value of the pixel to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -835,7 +835,7 @@ Assumes color is in destination format.
 \param y1 Y coordinate of the first corner (upper left) of the rectangle.
 \param x2 X coordinate of the second corner (lower right) of the rectangle.
 \param y2 Y coordinate of the second corner (lower right) of the rectangle.
-\param color The color value of the rectangle to draw (0xRRGGBBAA).
+\param color The color value of the rectangle to draw.
 \param alpha Alpha blending amount for pixels.
 
 \returns Returns 0 on success, -1 on failure.
@@ -1060,7 +1060,7 @@ int _filledRectAlpha(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 \param y1 Y coordinate of the first corner (upper left) of the rectangle.
 \param x2 X coordinate of the second corner (lower right) of the rectangle.
 \param y2 Y coordinate of the second corner (lower right) of the rectangle.
-\param color The color value of the rectangle to draw (0xRRGGBBAA).
+\param color The color value of the rectangle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1107,7 +1107,7 @@ int filledRectAlpha(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y
 \param x1 X coordinate of the first point (i.e. left) of the line.
 \param x2 X coordinate of the second point (i.e. right) of the line.
 \param y Y coordinate of the points of the line.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1123,7 +1123,7 @@ int _HLineAlpha(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, OSn::Color32 
 \param x X coordinate of the points of the line.
 \param y1 Y coordinate of the first point (top) of the line.
 \param y2 Y coordinate of the second point (bottom) of the line.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1138,7 +1138,7 @@ int _VLineAlpha(SDL_Surface * dst, Sint16 x, Sint16 y1, Sint16 y2, OSn::Color32 
 \param dst The surface to draw on.
 \param x The horizontal coordinate of the pixel.
 \param y The vertical position of the pixel.
-\param color The color value of the pixel to draw (0xRRGGBBAA). 
+\param color The color value of the pixel to draw.
 \param weight The weight multiplied into the alpha value of the pixel.
 
 \returns Returns 0 on success, -1 on failure.
@@ -1156,7 +1156,7 @@ int pixelColorWeight(SDL_Surface * dst, Sint16 x, Sint16 y, OSn::Color32 color, 
 \param dst The surface to draw on.
 \param x The horizontal coordinate of the pixel.
 \param y The vertical position of the pixel.
-\param color The color value of the pixel to draw (0xRRGGBBAA). 
+\param color The color value of the pixel to draw.
 \param weight The weight multiplied into the alpha value of the pixel.
 
 \returns Returns 0 on success, -1 on failure.
@@ -1216,7 +1216,7 @@ int pixelRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, 
 \param x1 X coordinate of the first point (i.e. left) of the line.
 \param x2 X coordinate of the second point (i.e. right) of the line.
 \param y Y coordinate of the points of the line.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1389,7 +1389,7 @@ int hlineRGBA(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 
 \param x X coordinate of the points of the line.
 \param y1 Y coordinate of the first point (i.e. top) of the line.
 \param y2 Y coordinate of the second point (i.e. bottom) of the line.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1562,7 +1562,7 @@ int vlineRGBA(SDL_Surface * dst, Sint16 x, Sint16 y1, Sint16 y2, Uint8 r, Uint8 
 \param y1 Y coordinate of the first point (i.e. top right) of the rectangle.
 \param x2 X coordinate of the second point (i.e. bottom left) of the rectangle.
 \param y2 Y coordinate of the second point (i.e. bottom left) of the rectangle.
-\param color The color value of the rectangle to draw (0xRRGGBBAA).
+\param color The color value of the rectangle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1667,7 +1667,7 @@ int rectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2,
 \param x2 X coordinate of the second point (i.e. bottom left) of the rectangle.
 \param y2 Y coordinate of the second point (i.e. bottom left) of the rectangle.
 \param rad The radius of the corner arc.
-\param color The color value of the rectangle to draw (0xRRGGBBAA).
+\param color The color value of the rectangle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -1819,7 +1819,7 @@ int roundedRectangleRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sin
 \param x2 X coordinate of the second point (i.e. bottom left) of the box.
 \param y2 Y coordinate of the second point (i.e. bottom left) of the box.
 \param rad The radius of the corner arcs of the box.
-\param color The color value of the box to draw (0xRRGGBBAA).
+\param color The color value of the box to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -2089,7 +2089,7 @@ static int _clipLine(SDL_Surface * dst, Sint16 * x1, Sint16 * y1, Sint16 * x2, S
 \param y1 Y coordinate of the first point (i.e. top right) of the box.
 \param x2 X coordinate of the second point (i.e. bottom left) of the box.
 \param y2 Y coordinate of the second point (i.e. bottom left) of the box.
-\param color The color value of the box to draw (0xRRGGBBAA).
+\param color The color value of the box to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -2317,7 +2317,7 @@ int boxRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint8
 \param y1 Y coordinate of the first point of the line.
 \param x2 X coordinate of the second point of the line.
 \param y2 Y coordinate of the second point of the line.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -2545,7 +2545,7 @@ with alpha<255.
 \param y1 Y coordinate of the first point of the aa-line.
 \param x2 X coordinate of the second point of the aa-line.
 \param y2 Y coordinate of the second point of the aa-line.
-\param color The color value of the aa-line to draw (0xRRGGBBAA).
+\param color The color value of the aa-line to draw.
 \param draw_endpoint Flag indicating if the endpoint should be drawn; draw if non-zero.
 
 \returns Returns 0 on success, -1 on failure.
@@ -2785,7 +2785,7 @@ int _aalineColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, 
 \param y1 Y coordinate of the first point of the aa-line.
 \param x2 X coordinate of the second point of the aa-line.
 \param y2 Y coordinate of the second point of the aa-line.
-\param color The color value of the aa-line to draw (0xRRGGBBAA).
+\param color The color value of the aa-line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -2829,7 +2829,7 @@ minor speedup changes.
 \param x X coordinate of the center of the circle.
 \param y Y coordinate of the center of the circle.
 \param rad Radius in pixels of the circle.
-\param color The color value of the circle to draw (0xRRGGBBAA).
+\param color The color value of the circle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -3069,7 +3069,7 @@ renders pixels accordingly.
 \param rad Radius in pixels of the arc.
 \param start Starting radius in degrees of the arc. 0 degrees is down, increasing counterclockwise.
 \param end Ending radius in degrees of the arc. 0 degrees is down, increasing counterclockwise.
-\param color The color value of the arc to draw (0xRRGGBBAA).
+\param color The color value of the arc to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -3449,7 +3449,7 @@ int arcRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sin
 
 /* ----- AA Circle */
 
-#if 0
+
 /*!
 \brief Draw anti-aliased circle with blending.
 
@@ -3459,7 +3459,7 @@ Note: The AA-circle routine is based on AA-ellipse with identical radii.
 \param x X coordinate of the center of the aa-circle.
 \param y Y coordinate of the center of the aa-circle.
 \param rad Radius in pixels of the aa-circle.
-\param color The color value of the aa-circle to draw (0xRRGGBBAA).
+\param color The color value of the aa-circle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -3503,7 +3503,7 @@ multiple-hline draw removal and other minor speedup changes.
 \param x X coordinate of the center of the filled circle.
 \param y Y coordinate of the center of the filled circle.
 \param rad Radius in pixels of the filled circle.
-\param color The color value of the filled circle to draw (0xRRGGBBAA).
+\param color The color value of the filled circle to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -3656,7 +3656,7 @@ multiple-pixel draw removal and other minor speedup changes.
 \param y Y coordinate of the center of the ellipse.
 \param rx Horizontal radius in pixels of the ellipse.
 \param ry Vertical radius in pixels of the ellipse.
-\param color The color value of the ellipse to draw (0xRRGGBBAA).
+\param color The color value of the ellipse to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -3755,13 +3755,7 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OS
 		/*
 		* Setup color
 		*/
-		colorptr = (Uint8 *) & color;
-		if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-			color = SDL_MapRGBA(dst->format, colorptr[0], colorptr[1], colorptr[2], colorptr[3]);
-		} else {
-			color = SDL_MapRGBA(dst->format, colorptr[3], colorptr[2], colorptr[1], colorptr[0]);
-		}
-
+		dword pixval = PixelFmt::encode(color, dst->nformat);
 
 		if (rx > ry) {
 			ix = 0;
@@ -3779,13 +3773,13 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OS
 					if (k > 0) {
 						ypk = y + k;
 						ymk = y - k;
-						result |= fastPixelColorNolock(dst, xmh, ypk, color);
-						result |= fastPixelColorNolock(dst, xph, ypk, color);
-						result |= fastPixelColorNolock(dst, xmh, ymk, color);
-						result |= fastPixelColorNolock(dst, xph, ymk, color);
+						result |= fastPixelColorNolock(dst, xmh, ypk, pixval);
+						result |= fastPixelColorNolock(dst, xph, ypk, pixval);
+						result |= fastPixelColorNolock(dst, xmh, ymk, pixval);
+						result |= fastPixelColorNolock(dst, xph, ymk, pixval);
 					} else {
-						result |= fastPixelColorNolock(dst, xmh, y, color);
-						result |= fastPixelColorNolock(dst, xph, y, color);
+						result |= fastPixelColorNolock(dst, xmh, y, pixval);
+						result |= fastPixelColorNolock(dst, xph, y, pixval);
 					}
 					ok = k;
 					xpi = x + i;
@@ -3793,13 +3787,13 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OS
 					if (j > 0) {
 						ypj = y + j;
 						ymj = y - j;
-						result |= fastPixelColorNolock(dst, xmi, ypj, color);
-						result |= fastPixelColorNolock(dst, xpi, ypj, color);
-						result |= fastPixelColorNolock(dst, xmi, ymj, color);
-						result |= fastPixelColorNolock(dst, xpi, ymj, color);
+						result |= fastPixelColorNolock(dst, xmi, ypj, pixval);
+						result |= fastPixelColorNolock(dst, xpi, ypj, pixval);
+						result |= fastPixelColorNolock(dst, xmi, ymj, pixval);
+						result |= fastPixelColorNolock(dst, xpi, ymj, pixval);
 					} else {
-						result |= fastPixelColorNolock(dst, xmi, y, color);
-						result |= fastPixelColorNolock(dst, xpi, y, color);
+						result |= fastPixelColorNolock(dst, xmi, y, pixval);
+						result |= fastPixelColorNolock(dst, xpi, y, pixval);
 					}
 					oj = j;
 				}
@@ -3824,13 +3818,13 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OS
 					if (i > 0) {
 						ypi = y + i;
 						ymi = y - i;
-						result |= fastPixelColorNolock(dst, xmj, ypi, color);
-						result |= fastPixelColorNolock(dst, xpj, ypi, color);
-						result |= fastPixelColorNolock(dst, xmj, ymi, color);
-						result |= fastPixelColorNolock(dst, xpj, ymi, color);
+						result |= fastPixelColorNolock(dst, xmj, ypi, pixval);
+						result |= fastPixelColorNolock(dst, xpj, ypi, pixval);
+						result |= fastPixelColorNolock(dst, xmj, ymi, pixval);
+						result |= fastPixelColorNolock(dst, xpj, ymi, pixval);
 					} else {
-						result |= fastPixelColorNolock(dst, xmj, y, color);
-						result |= fastPixelColorNolock(dst, xpj, y, color);
+						result |= fastPixelColorNolock(dst, xmj, y, pixval);
+						result |= fastPixelColorNolock(dst, xpj, y, pixval);
 					}
 					oi = i;
 					xmk = x - k;
@@ -3838,13 +3832,13 @@ int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OS
 					if (h > 0) {
 						yph = y + h;
 						ymh = y - h;
-						result |= fastPixelColorNolock(dst, xmk, yph, color);
-						result |= fastPixelColorNolock(dst, xpk, yph, color);
-						result |= fastPixelColorNolock(dst, xmk, ymh, color);
-						result |= fastPixelColorNolock(dst, xpk, ymh, color);
+						result |= fastPixelColorNolock(dst, xmk, yph, pixval);
+						result |= fastPixelColorNolock(dst, xpk, yph, pixval);
+						result |= fastPixelColorNolock(dst, xmk, ymh, pixval);
+						result |= fastPixelColorNolock(dst, xpk, ymh, pixval);
 					} else {
-						result |= fastPixelColorNolock(dst, xmk, y, color);
-						result |= fastPixelColorNolock(dst, xpk, y, color);
+						result |= fastPixelColorNolock(dst, xmk, y, pixval);
+						result |= fastPixelColorNolock(dst, xpk, y, pixval);
 					}
 					oh = h;
 				}
@@ -4035,7 +4029,7 @@ which is based on code from TwinLib.
 \param y Y coordinate of the center of the aa-ellipse.
 \param rx Horizontal radius in pixels of the aa-ellipse.
 \param ry Vertical radius in pixels of the aa-ellipse.
-\param color The color value of the aa-ellipse to draw (0xRRGGBBAA).
+\param color The color value of the aa-ellipse to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4305,7 +4299,7 @@ and other speedup changes.
 \param y Y coordinate of the center of the filled ellipse.
 \param rx Horizontal radius in pixels of the filled ellipse.
 \param ry Vertical radius in pixels of the filled ellipse.
-\param color The color value of the filled ellipse to draw (0xRRGGBBAA).
+\param color The color value of the filled ellipse to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4485,7 +4479,7 @@ int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 r
 	return (filledEllipseColor
 		(dst, x, y, rx, ry, RGBA(r, g, b, a)));
 }
-#endif
+
 /* ----- pie */
 
 /*!
@@ -4499,7 +4493,7 @@ Note: Determines vertex array and uses polygon or filledPolygon drawing routines
 \param rad Radius in pixels of the pie.
 \param start Starting radius in degrees of the pie.
 \param end Ending radius in degrees of the pie.
-\param color The color value of the pie to draw (0xRRGGBBAA).
+\param color The color value of the pie to draw.
 \param filled Flag indicating if the pie should be filled (=1) or not (=0).
 
 \returns Returns 0 on success, -1 on failure.
@@ -4650,7 +4644,7 @@ int _pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, S
 \param rad Radius in pixels of the pie.
 \param start Starting radius in degrees of the pie.
 \param end Ending radius in degrees of the pie.
-\param color The color value of the pie to draw (0xRRGGBBAA).
+\param color The color value of the pie to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4693,7 +4687,7 @@ int pieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 \param rad Radius in pixels of the filled pie.
 \param start Starting radius in degrees of the filled pie.
 \param end Ending radius in degrees of the filled pie.
-\param color The color value of the filled pie to draw (0xRRGGBBAA).
+\param color The color value of the filled pie to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4723,7 +4717,7 @@ int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 {
 	return (_pieColor(dst, x, y, rad, start, end, RGBA(r, g, b, a), 1));
 }
-#if 0
+
 /* ------ Trigon */
 
 /*!
@@ -4738,7 +4732,7 @@ Note: Creates vertex array and uses polygon routine to render.
 \param y2 Y coordinate of the second point of the trigon.
 \param x3 X coordinate of the third point of the trigon.
 \param y3 Y coordinate of the third point of the trigon.
-\param color The color value of the trigon to draw (0xRRGGBBAA).
+\param color The color value of the trigon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4804,7 +4798,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 \param y2 Y coordinate of the second point of the aa-trigon.
 \param x3 X coordinate of the third point of the aa-trigon.
 \param y3 Y coordinate of the third point of the aa-trigon.
-\param color The color value of the aa-trigon to draw (0xRRGGBBAA).
+\param color The color value of the aa-trigon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4870,7 +4864,7 @@ Note: Creates vertex array and uses aapolygon routine to render.
 \param y2 Y coordinate of the second point of the filled trigon.
 \param x3 X coordinate of the third point of the filled trigon.
 \param y3 Y coordinate of the third point of the filled trigon.
-\param color The color value of the filled trigon to draw (0xRRGGBBAA).
+\param color The color value of the filled trigon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -4923,7 +4917,7 @@ int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 
 	return(filledPolygonRGBA(dst,vx,vy,3,r,g,b,a));
 }
-#endif
+
 /* ---- Polygon */
 
 /*!
@@ -4933,7 +4927,7 @@ int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 \param vx Vertex array containing X coordinates of the points of the polygon.
 \param vy Vertex array containing Y coordinates of the points of the polygon.
 \param n Number of points in the vertex array. Minimum number is 3.
-\param color The color value of the polygon to draw (0xRRGGBBAA).
+\param color The color value of the polygon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -5014,7 +5008,7 @@ int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 }
 
 /* ---- AA-Polygon */
-#if 0
+
 /*!
 \brief Draw anti-aliased polygon with alpha blending.
 
@@ -5022,7 +5016,7 @@ int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 \param vx Vertex array containing X coordinates of the points of the aa-polygon.
 \param vy Vertex array containing Y coordinates of the points of the aa-polygon.
 \param n Number of points in the vertex array. Minimum number is 3.
-\param color The color value of the aa-polygon to draw (0xRRGGBBAA).
+\param color The color value of the aa-polygon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -5101,7 +5095,7 @@ int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n
 	*/
 	return (aapolygonColor(dst, vx, vy, n, RGBA(r, g, b, a)));
 }
-#endif
+
 /* ---- Filled Polygon */
 
 /*!
@@ -5140,7 +5134,7 @@ Note: The last two parameters are optional; but are required for multithreaded o
 \param vx Vertex array containing X coordinates of the points of the filled polygon.
 \param vy Vertex array containing Y coordinates of the points of the filled polygon.
 \param n Number of points in the vertex array. Minimum number is 3.
-\param color The color value of the filled polygon to draw (0xRRGGBBAA).
+\param color The color value of the filled polygon to draw.
 \param polyInts Preallocated, temporary vertex array used for sorting vertices. Required for multithreaded operation; set to NULL otherwise.
 \param polyAllocated Flag indicating if temporary vertex array was allocated. Required for multithreaded operation; set to NULL otherwise.
 
@@ -5339,7 +5333,7 @@ to use the global vertex cache.
 \param vx Vertex array containing X coordinates of the points of the filled polygon.
 \param vy Vertex array containing Y coordinates of the points of the filled polygon.
 \param n Number of points in the vertex array. Minimum number is 3.
-\param color The color value of the filled polygon to draw (0xRRGGBBAA).
+\param color The color value of the filled polygon to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -5853,7 +5847,7 @@ Uses alpha blending if A<255 in color.
 \param x X (horizontal) coordinate of the upper left corner of the character.
 \param y Y (vertical) coordinate of the upper left corner of the character.
 \param c The character to draw.
-\param color The color value of the character to draw (0xRRGGBBAA).
+\param color The color value of the character to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -6044,7 +6038,7 @@ of the character width of the current global font.
 \param x X (horizontal) coordinate of the upper left corner of the string.
 \param y Y (vertical) coordinate of the upper left corner of the string.
 \param s The string to draw.
-\param color The color value of the string to draw (0xRRGGBBAA).
+\param color The color value of the string to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -6099,7 +6093,7 @@ int stringRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, const char *s, Uint8 r, Ui
 	*/
 	return (stringColor(dst, x, y, s, RGBA(r, g, b, a)));
 }
-
+#endif
 /* ---- Bezier curve */
 
 /*!
@@ -6166,7 +6160,7 @@ double _evaluateBezier (double *data, int ndata, double t)
 \param vy Vertex array containing Y coordinates of the points of the bezier curve.
 \param n Number of points in the vertex array. Minimum number is 3.
 \param s Number of steps for the interpolation. Minimum number is 2.
-\param color The color value of the bezier curve to draw (0xRRGGBBAA).
+\param color The color value of the bezier curve to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */
@@ -6253,7 +6247,7 @@ int bezierRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, i
 	return (bezierColor(dst, vx, vy, n, s, RGBA(r, g, b, a)));
 }
 
-#endif
+
 /*!
 \brief Internal function to initialize the Bresenham line iterator.
 
@@ -6753,7 +6747,7 @@ void _murphyWideline(SDL_gfxMurphyIterator *m, Sint16 x1, Sint16 y1, Sint16 x2, 
 \param x2 X coordinate of the second point of the line.
 \param y2 Y coordinate of the second point of the line.
 \param width Width of the line in pixels. Must be >0.
-\param color The color value of the line to draw (0xRRGGBBAA).
+\param color The color value of the line to draw.
 
 \returns Returns 0 on success, -1 on failure.
 */

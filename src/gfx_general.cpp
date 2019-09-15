@@ -304,14 +304,6 @@ int main(int argc, char **argv)
 	SDL_Surface sfc;
 	compat::to_sdl(bmp, &sfc);
 
-	circleColor(&sfc, 160, 120, 50, RGBA(0x00ff0080));
-
-	for (int i = 0; i < 8; i++)
-	{
-		aalineColor(&sfc, rand()%320, rand()%240, rand()%320, rand()%240, RGBA(0x00ffffff));
-		thickLineColor(&sfc, rand()%320, rand()%240, rand()%320, rand()%240, (rand()%6)+2, RGBA(0x800080ff));
-	}
-
 	GFX::write_tga("out.tga", bmp);
 	delete bmp;
 

@@ -134,36 +134,36 @@ extern "C" {
 	SDL_GFXPRIMITIVES_SCOPE int arcRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, Sint16 end,
 		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//	/* AA Circle */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int aacircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
-//		Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Filled Circle */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 r, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int filledCircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
-//		Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Ellipse */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
-//		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* AA Ellipse */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int aaellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
-//		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Filled Ellipse */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
-//		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* AA Circle */
+
+	SDL_GFXPRIMITIVES_SCOPE int aacircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int aacircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
+		Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Filled Circle */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledCircleColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 r, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int filledCircleRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
+		Sint16 rad, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Ellipse */
+
+	SDL_GFXPRIMITIVES_SCOPE int ellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
+		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* AA Ellipse */
+
+	SDL_GFXPRIMITIVES_SCOPE int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int aaellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
+		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Filled Ellipse */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledEllipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int filledEllipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y,
+		Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 	/* Pie */
 
 	SDL_GFXPRIMITIVES_SCOPE int pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
@@ -178,36 +178,36 @@ extern "C" {
 	SDL_GFXPRIMITIVES_SCOPE int filledPieRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad,
 		Sint16 start, Sint16 end, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//	/* Trigon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int trigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int trigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
-//		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* AA-Trigon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int aatrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int aatrigonRGBA(SDL_Surface * dst,  Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
-//		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
-//	/* Filled Trigon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int filledTrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
-//		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* Trigon */
+
+	SDL_GFXPRIMITIVES_SCOPE int trigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int trigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* AA-Trigon */
+
+	SDL_GFXPRIMITIVES_SCOPE int aatrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int aatrigonRGBA(SDL_Surface * dst,  Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+	/* Filled Trigon */
+
+	SDL_GFXPRIMITIVES_SCOPE int filledTrigonColor(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int filledTrigonRGBA(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
+		Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 	/* Polygon */
 
 	SDL_GFXPRIMITIVES_SCOPE int polygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
 	SDL_GFXPRIMITIVES_SCOPE int polygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
 		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//	/* AA-Polygon */
-//
-//	SDL_GFXPRIMITIVES_SCOPE int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
-//	SDL_GFXPRIMITIVES_SCOPE int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
-//		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-//
+	/* AA-Polygon */
+
+	SDL_GFXPRIMITIVES_SCOPE int aapolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
+	SDL_GFXPRIMITIVES_SCOPE int aapolygonRGBA(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy,
+		int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
 	/* Filled Polygon */
 
 	SDL_GFXPRIMITIVES_SCOPE int filledPolygonColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, OSn::Color32 color);
