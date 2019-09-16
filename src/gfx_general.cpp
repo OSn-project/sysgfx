@@ -4,42 +4,15 @@
 #include <endian.h>
 #include <base/macros.h>
 #include <base/misc.h>
-#include <float.h>
 #include <math.h>
 
 #include "../headers/sysgfx.h"
 #include "../headers/tga_file.h"
 
+#include "indexed.h"
+
 using namespace OSn;
 using namespace OSn::GFX;
-
-inline int sq(int i) { return i * i; }
-
-uint8 closest_color(Color32 orig, PixelFmt *fmt)		// Hey boi look 'ere: https://www.bisqwit.iki.fi/story/howto/dither/jy/
-{														// And 'ere:          https://github.com/wjaguar/mtPaint/blob/960cff9ac0ec0834ea358fff49818125b9309d86/src/memory.c#L3016
-	/* Get the index of the color in the format's palette	*
-	 * that is the most similar to the specified colour.	*
-	 * Could be improved by converting to a colourspace		*
-	 * that closer represents human vision (like HSV)		*
-	 * and finding the closest colour in that.				*/
-
-	uint16 closest_idx  = 0;
-	float  closest_loss = FLT_MAX;
-
-	for (uint16 i = 0; i < fmt->palette.size; i++)
-	{
-		Color32 col = fmt->palette.colors[i];
-		float  loss = sqrt(sq(orig.red - col.red) + sq(orig.green - col.green) + sq(orig.blue - col.blue));		// Sorry no alpha
-
-		if (loss < closest_loss)
-		{
-			closest_idx = i;
-			closest_loss = loss;
-		}
-	}
-
-	return closest_idx;
-}
 
 Bitmap *GFX::quantize(Bitmap *bmp, PixelFmt *target_fmt, Bitmap *out)
 {
@@ -121,7 +94,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		{
 			dword colorval = 0;
 			fread(&colorval, cmap_fmt->bypp, 1, file);
-			format->palette.colors[i] = PixelFmt::decode(colorval, cmap_fmt);
+			format->palette.colors[i] = PixelFmt::decode(colorval, (PixelFmt *) cmap_fmt);
 		}
 
 		bitmap->format = format;
@@ -244,7 +217,7 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	{
 		for (uint16 i = 0; i < bmp->format->palette.size; i++)
 		{
-			dword color = PixelFmt::convert(bmp->format->palette.colors[i].value, &Color32::format, &tga_rgba32);
+			dword color = PixelFmt::encode(bmp->format->palette.colors[i], &tga_rgba32);
 			fwrite(&color, 4, 1, file);
 		}
 	}

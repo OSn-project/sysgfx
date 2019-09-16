@@ -6,10 +6,10 @@
 
 /*
  * We have to be careful when manipulating pixel values as we don't know whether the machine is big- or little-endian.
- * This limits us in a coupke of ways:
+ * This limits us in a couple of ways:
  *  - We can't assign literal values to ints, as the order of the number's bytes will vary according to the system. `a = 0x12345678` may be stored as `12 34 56 78` on one system, but will be `78 56 34 12` on another.
  *  - Pixel values are stored as `dword`s. Although this is an `int32` under the hood, it should be treated like a 4-byte array.
- *  - Code should stay portable accross big- and little-endian systems. This means that the use of some operations, such as bit-shifting* is limited. Bit-wise operations such as AND and XOR are safe.
+ *  - The use of some operations, such as bit-shifting* is limited. Bit-wise operations such as AND and XOR are safe.
  *
  * *bit-shifting is only safe on single bytes (uint8)
  */
@@ -32,9 +32,9 @@ namespace OSn
 			 * deallocation, just like normal.		*/
 
 			uint8 bpp;			// The number of bits per pixel.
-			uint8 bypp;			// The number of bytes per pixel. Should be bpp // 8 rounded up.
+			uint8 bypp;			// The number of bytes per pixel. Should be bpp // 8 rounded up. Only 1 - 4 supported.
 			
-			enum { INDEXED, RGBA } mode;
+			enum { RGBA, INDEXED, CUSTOM } mode;
 
 			union
 			{
@@ -60,7 +60,7 @@ namespace OSn
 					uint8 a_shift;
 					uint8 a_size;
 
-					bool byte_swap;		// Reverses the order of the bytes once the pixel value is encoded. Set for little-endian formats. Works for .bypp = 1, 2, 3, 4
+					bool byte_swap;		// Reverses the order of the bytes once the pixel value is encoded. Set for little-endian formats.
 					bool invert_alpha;	// If true, 255 = transparent and 0 = opaque.
 				} rgba;
 
@@ -71,6 +71,15 @@ namespace OSn
 				} palette;
 			};							// This union is anonymous, meaning that its members cede to the enclosing struct.
 
+			struct {
+				/* These are compulsory if the mode is `CUSTOM`.	*
+				 * They may be used in other modes as well if the 	*
+				 * source/target happens to be stored as `Color32`.	*/
+
+				void (*encode_color32)(Color32 *src, void *dst, uint64 length);
+				void (*decode_color32)(void *src, Color32 *dst, uint64 length);
+			};
+
 			/* Reference counting for when the format is malloced.	*
 			 * Don't set these in designated initializers.			*/
 			uint32 _refcount;		// Refcounting here is a bit unusial because the struct gets freed not when the count goes from 1 -> 0, but when it goes from 0 -> -1. It could rather be thought of as 'number of references other than the creator reference'. This decision was made to save boilerplate code, because the struct is often initialized literally in a file, or malloced.
@@ -79,24 +88,26 @@ namespace OSn
 			static PixelFmt *ref  (PixelFmt *fmt);
 			static PixelFmt *unref(PixelFmt *fmt);
 
-			static uint8 *expand_table[9];
+			static uint8 *expand_table[9];	// For expanding < 8 bit values
 
-//			static owning PixelFmt *copy(const PixelFmt *fmt);		// Probably not a good idea because some functions compare pointers to check for a format. (eg. `if (bmp->format == &Color32::format) ...`)
+//			static owning PixelFmt *copy(const PixelFmt *fmt);		// Wait, there's no reason to copy a PixelFmt!	// Probably not a good idea because some functions compare pointers to check for a format. (eg. `if (bmp->format == &Color32::format) ...`)
 			static bool compare(const PixelFmt *fmt_a, const PixelFmt *fmt_b);
 
-			static dword        encode(Color32 col, const PixelFmt *out_fmt);
-			static Color32      decode(dword val, const PixelFmt *in_fmt);		// Both encode and decode expect the format to not be indexed.
-			static inline dword encode(uint8& r, uint8& g, uint8& b, uint8& a, const PixelFmt *out_fmt);
-			static inline void  decode(dword val, const PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a);	// Sorry I know they're messy. The'yre needed to make SDL_gfx work.
+			static dword   encode(Color32 col, PixelFmt *out_fmt);	// If format is indexed, finds the nearest colour.
+			static Color32 decode(dword val, PixelFmt *in_fmt);
 
-			static dword   convert(dword val, const PixelFmt *fmt_a, const PixelFmt *fmt_b);	// If the pixel format is less than 32 bpp, the value will occupy the uppermost in memory bits/bytes.
-//			static void convert(uint8 *val_a, const PixelFmt *fmt_a, uint8 *val_b, const PixelFmt *fmt_b);
+			static inline void  decode(dword val, PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a);
+			static inline dword encode(uint8& r, uint8& g, uint8& b, uint8& a, PixelFmt *out_fmt);
+
+			static bool    encode_pixels(Color32 *in, void *out, uint64 length, PixelFmt *fmt);
+			static bool    decode_pixels(void *in, Color32 *out, uint64 length, PixelFmt *fmt);
+			static bool    convert_pixels(void *in, void *out, uint64 length, PixelFmt *in_fmt, PixelFmt *out_fmt);
 
 			static owning PixelFmt *indexed_for(Color32 *pal, size_t size);		// Create an indexed pixelfmt struct for the given colour palette.
 		};
 
 		/* Inlines */
-		inline void PixelFmt :: decode(dword val, const PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a)
+		inline void PixelFmt :: decode(dword val, PixelFmt *in_fmt, uint8& r, uint8& g, uint8& b, uint8& a)
 		{
 			Color32 col = PixelFmt::decode(val, in_fmt);
 
@@ -106,7 +117,7 @@ namespace OSn
 			a = col.alpha;
 		}
 
-		inline dword PixelFmt :: encode(uint8& r, uint8& g, uint8& b, uint8& a, const PixelFmt *out_fmt)
+		inline dword PixelFmt :: encode(uint8& r, uint8& g, uint8& b, uint8& a, PixelFmt *out_fmt)
 		{
 			Color32 col = OSn::RGBA(r, g, b, a);
 			return PixelFmt::encode(col, out_fmt);

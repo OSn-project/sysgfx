@@ -43,10 +43,12 @@ namespace OSn
 
 		public:
 			Bitmap();	// Initializes a bitmap with no buffer or pixel format
-//			Bitmap(const Bitmap *bmp);
-//			Bitmap(const Bitmap *bmp, const Rect *area);
-			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);		// Initializes a bitmap with a buffer of the specified dimensions of the given pixel format. It is not guaranteed that the memory will be cleared. Increments the reference count of `fmt`.
+			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt);		// Initializes a bitmap with a buffer of the specified dimensions of the given pixel format. Buffer is not cleared to 0s by default. Increments the reference count of `fmt`.
+			Bitmap(uint32 width, uint32 height, const PixelFmt *fmt, owning void *data);
 			~Bitmap();
+
+			static owning Bitmap *copy(const Bitmap *bmp, Rect *area = NULL, uint32 flags = 0);
+			static owning Bitmap *fragment(Bitmap *src, Rect *area);
 
 			inline bool integrity() const { return (this->format != NULL && this->data != NULL); }
 			inline bool is_indexed() const { return this->format->mode == PixelFmt::INDEXED; }
@@ -65,18 +67,9 @@ namespace OSn
 			static void delete_fmt(Bitmap *bmp);	// Unrefs the format so that it gets freed if we're the only ones referencing it.
 			static void delete_data(Bitmap *bmp);	// Frees the data if we own it.
 		};
-		
-		struct Fragment
-		{
-			/* Used to refer to the area of a bitmap */
-
-			const Bitmap *source;
-			Rect rect;
-		};
 	}
 	
 	using GFX::Bitmap;
-	using GFX::Fragment;
 }
 
 #endif

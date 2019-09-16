@@ -6,6 +6,7 @@
 #include <base/misc.h>
 
 #include "../headers/pixelfmt.h"
+#include "indexed.h"
 
 using namespace OSn;
 using namespace GFX;
@@ -19,7 +20,7 @@ using namespace GFX;
  * do: `PixelFmt::expand_table[size in bits]		*
  * [pix. value]`. Original values courtesy of SDL.	*/
 
-static uint8 expand_0b[] = {255};
+static uint8 expand_0b[] = {0};
 static uint8 expand_1b[] = {0, 255};
 static uint8 expand_2b[] = {0, 85, 170, 255};
 static uint8 expand_3b[] = {0, 36, 72, 109, 145, 182, 218, 255};
@@ -42,7 +43,6 @@ uint8 *PixelFmt::expand_table[9] = {
 };
 
 /* Reference counting */
-#include <stdio.h>
 PixelFmt *PixelFmt :: ref(PixelFmt *fmt)
 {
 	fmt->_refcount++;
@@ -90,7 +90,9 @@ inline void swap_bytes(uint8 *i, uint8 size)
 	}
 }
 
-Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
+/* RGBA en/decoding */
+
+Color32 decode_rgba(dword val, const PixelFmt *in_fmt)
 {
 	assert(in_fmt->mode == PixelFmt::RGBA);
 
@@ -159,7 +161,7 @@ Color32 PixelFmt :: decode(dword val, const PixelFmt *in_fmt)
 	return out;
 }
 
-dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
+dword encode_rgba(Color32 col, const PixelFmt *out_fmt)
 {
 	assert(out_fmt->mode == PixelFmt::RGBA);
 
@@ -201,20 +203,125 @@ dword PixelFmt :: encode(Color32 col, const PixelFmt *out_fmt)
 	return out;
 }
 
-dword PixelFmt :: convert(dword in, const PixelFmt *in_fmt, const PixelFmt *out_fmt)
+/* Single value */
+
+dword PixelFmt :: encode(Color32 col, PixelFmt *out_fmt)
 {
-	Color32 tmp = PixelFmt::decode(in, in_fmt);
-	return PixelFmt::encode(tmp, out_fmt);
+	dword encoded;
+
+	return PixelFmt::encode_pixels(&col, &encoded, 1, out_fmt) ? encoded : (dword) 0;	// Return black if it failed.
 }
 
-/*void PixelFmt :: convert(uint8 *in_ptr, const PixelFmt *in_fmt, uint8 *out_ptr, const PixelFmt *out_fmt)
+Color32 PixelFmt :: decode(dword val, PixelFmt *in_fmt)
 {
-	uint32 in_val;
-	memcpy(&in_val + (sizeof(uint32) - in_fmt->bypp), in_ptr, in_fmt->bypp);
+	Color32 decoded;
 
-	uint32 out = PixelFmt::convert(in_val, in_fmt, out_fmt);
-	memcpy(out_ptr, &out + (sizeof(uint32) - in_fmt->bypp), out_fmt->bypp);
-}*/
+	return PixelFmt::decode_pixels(&val, &decoded, 1, in_fmt) ? decoded : OSn::RGBA(0,0,0);
+}
+
+/* Multiple values */
+bool PixelFmt :: encode_pixels(Color32 *in, void *_out, uint64 length, PixelFmt *fmt)
+{
+	uint8 *out = (uint8 *) _out;
+
+	/* If no conversion is needed */
+	if (fmt == &Color32::format)
+	{
+		memcpy(out, in, length * sizeof(Color32));
+		return true;
+	}
+
+	/*  */
+	if (fmt->mode == PixelFmt::INDEXED)
+	{
+		for (uint64 i = 0; i < length; i++)
+		{
+			out[i] = closest_color(in[i], fmt);
+		}
+	}
+	else if (fmt->encode_color32 != NULL)	// If a format is RGBA but provides its own convertor, use it. It will probably be faster than doing all the complicated bit-shifting.
+	{
+		fmt->encode_color32(in, out, length);
+	}
+	else if (fmt->mode == PixelFmt::RGBA)
+	{
+		for (uint64 i = 0; i < length; i++)
+		{
+			dword val = encode_rgba(in[i], fmt);
+			memcpy(out + (i * fmt->bypp), &val, fmt->bypp);
+		}
+	}
+	else
+	{
+		/* No known conversion technique */
+		return false;
+	}
+
+	return true;
+}
+
+bool PixelFmt :: decode_pixels(void *_in, Color32 *out, uint64 length, PixelFmt *fmt)
+{
+	uint8 *in = (uint8 *) _in;
+
+	/* If no conversion is needed */
+	if (fmt == &Color32::format)
+	{
+		memcpy(out, in, length * sizeof(Color32));
+		return true;
+	}
+
+	/*  */
+	if (fmt->mode == PixelFmt::INDEXED)
+	{
+		for (uint64 i = 0; i < length; i++)
+		{
+			uint8 idx = in[i];
+			out[i] = fmt->palette.colors[idx];		// TODO: Index out of range..? Security bug?
+		}
+	}
+	else if (fmt->decode_color32 != NULL)	// See `encode_pixels`.
+	{
+		fmt->decode_color32(in, out, length);
+	}
+	else if (fmt->mode == PixelFmt::RGBA)
+	{
+		for (uint64 i = 0; i < length; i++)
+		{
+			dword px_val;
+			memcpy(&px_val, in + (i * fmt->bypp), fmt->bypp);
+			out[i] = decode_rgba(px_val, fmt);
+		}
+	}
+	else
+	{
+		/* No known conversion technique */
+		return false;
+	}
+
+	return true;
+}
+
+#define BUFSIZE	64
+
+bool PixelFmt :: convert_pixels(void *_in, void *_out, uint64 length, PixelFmt *in_fmt, PixelFmt *out_fmt)
+{
+	uint8 *in = (uint8 *) _in, *out = (uint8 *) _out;
+	Color32 convert_buf[BUFSIZE];
+
+	for (int i = 0; i < length; i += BUFSIZE)
+	{
+		PixelFmt::decode_pixels(in, convert_buf, b_min(BUFSIZE, length - i), in_fmt);
+		PixelFmt::encode_pixels(convert_buf, out, b_min(BUFSIZE, length - i), out_fmt);
+
+		in  += BUFSIZE * in_fmt->bypp;
+		out += BUFSIZE * out_fmt->bypp;
+	}
+
+	return true;	// Ehh, TODO. ^- functions return bools.
+}
+
+/* Other utility functions */
 
 //owning PixelFmt *PixelFmt :: copy(const PixelFmt *fmt)
 //{
