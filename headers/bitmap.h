@@ -14,7 +14,13 @@ namespace OSn
 		class Raster
 		{
 		public:
-			int16 width, height;
+			union {
+				Rect rect;
+				struct {
+					int16 x1, y1;
+					int16 width, height;
+				};
+			};
 		
 		public:
 			virtual void *get_pixel(int16 x, int16 y) const = 0;

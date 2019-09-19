@@ -61,14 +61,19 @@ const GFX::PixelFmt Color24::format = {
 
 void color32_to_24(Color32 *src, void *dst, uint64 length)
 {
-	uint64 i = 0;
-	for (dword *r = (dword *) src, *w = (dword *) dst; i < length; i++)
+	dword *r = (dword *) src, *w = (dword *) dst;
+
+	for (uint64 i = 0; i < length - 1; i++)		// We can only go up to length - 1 so that we don't write past the end of memory.
 	{
 		*w = *r;	// Copy all 4 bytes of Color32
 
 		r++;
 		w = (dword *) &w->bytes[3];	// We move 3 bytes instead of 4 so that we overwrite the alpha byte with the next pixel.
 	}
+
+	w->bytes[0] = r->bytes[0];	// Copy last three bytes manually. (No uint24 ;-( )
+	w->bytes[1] = r->bytes[1];
+	w->bytes[2] = r->bytes[2];
 }
 
 void color24_to_32(void *src, Color32 *dst, uint64 length)

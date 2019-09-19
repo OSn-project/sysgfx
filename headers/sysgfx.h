@@ -18,8 +18,8 @@ namespace OSn
 		class Bitmap;
 
 		/* Copying data */
-		void blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect);
-		void hw_blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect);
+		void blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect) __attribute__((nonnull (1, 3)));
+//		void hw_blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect);
 
 		/* Colour conversion */
 		Bitmap *quantize(Bitmap *bmp, PixelFmt *palette, Bitmap *out = NULL);	// Allocated a new bitmap if `out` is NULL.

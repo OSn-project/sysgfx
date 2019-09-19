@@ -265,19 +265,19 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 //		}
 //	}
 //}
-
-#include "sdlgfx/SDL_gfxPrimitives.h"
-#include <time.h>
-
+#include <stdio.h>
 int main(int argc, char **argv)
 {
-	srand(time(NULL));
-	Bitmap *bmp = new Bitmap(320, 240, &tga_rgb24);
+	Bitmap *bmp = GFX::read_tga(argc < 2 ? ".junk/MARBLES.TGA" : argv[1]);
+	Bitmap out(240, 240, &tga_rgba16);
 
-	SDL_Surface sfc;
-	compat::to_sdl(bmp, &sfc);
+	Rect dst = {0, 0, bmp->width, bmp->height};
 
-	GFX::write_tga("out.tga", bmp);
+	dst.center(&out.rect);
+
+	GFX::blit(bmp, NULL, &out, &dst);
+
+	GFX::write_tga("out.tga", &out);
 	delete bmp;
 
 	return 0;

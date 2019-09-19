@@ -19,6 +19,8 @@ Bitmap :: Bitmap()
 
 	this->format = NULL;
 	this->data   = NULL;
+
+	this->x1 = 0; this->y1 = 0;
 }
 
 Bitmap :: Bitmap(uint32 width, uint32 height, const PixelFmt *fmt)
@@ -38,6 +40,8 @@ Bitmap :: Bitmap(uint32 width, uint32 height, const PixelFmt *fmt, owning void *
 	this->data   = data;
 
 	this->format = PixelFmt::ref((PixelFmt *) fmt);
+
+	this->x1 = 0; this->y1 = 0;
 }
 
 Bitmap :: ~Bitmap()
