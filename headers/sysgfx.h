@@ -38,8 +38,8 @@ namespace OSn
 		/* File I/O */
 		Bitmap  *read_tga(FILE *file,       TGAMeta *meta = NULL);
 		Bitmap  *read_tga(const char *path, TGAMeta *meta = NULL);
-		error_t  write_tga(FILE *file,       Bitmap *bmp, TGAMeta *meta = NULL/*, bool rle = false*/);
-		error_t  write_tga(const char *path, Bitmap *bmp, TGAMeta *meta = NULL/*, bool rle = false*/);
+		error_t  write_tga(FILE *file,       Bitmap *bmp, bool rle = false, TGAMeta *meta = NULL);
+		error_t  write_tga(const char *path, Bitmap *bmp, bool rle = false, TGAMeta *meta = NULL);
 
 		/* Misc. */
 		bool palette_safe(const Bitmap *bmp);	// Checks whether all pixel values in the bitmap refer to colors within the palette. Always returns `true` for non-indexed bitmaps. This function can be used to ensure that a bitmap with an 8 color palette does not have a pixel with a palette index of 10.

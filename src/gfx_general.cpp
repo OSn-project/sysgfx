@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <endian.h>
 #include <base/macros.h>
 #include <base/misc.h>
@@ -10,6 +11,7 @@
 #include "../headers/tga_file.h"
 
 #include "indexed.h"
+#include "putpixel.h"
 
 using namespace OSn;
 using namespace OSn::GFX;
@@ -55,8 +57,6 @@ void GFX::vflip(Bitmap *bmp)
 
 	bmp->set_data(flipped);
 }
-
-// TODO: RLE support
 
 Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 {
@@ -119,11 +119,59 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 	bitmap->flags |= BMP_OWNDATA;
 
 	fseek(file, sizeof(TGAHeader) + header.cmap_size() + header.id_len, SEEK_SET);
-	fread(bitmap->data, bitmap->width * bitmap->height * bitmap->format->bypp, 1, file);
 
-	/* Deal with RLE */
 	if (header.img_type & TGA_ISRLE)
 	{
+		/* Deal with RLE */
+
+		uint8 *pixel = bitmap->bytes;
+		uint8  packet_len;
+
+		putpx_fn put_pixval = putpixval_for(bitmap->format->bypp);	// This is a function pointer to a function that will set a pixel of the given size. This logic is done now, so that it doesn't slow down the loop.
+
+		/* For each packet in the file */
+		for (uint64 npx = bitmap->width * bitmap->height; npx > 0;)
+		{
+			fread(&packet_len, 1, 1, file);
+
+			bool is_rle = packet_len & 0b10000000;
+
+			packet_len &= 0b01111111;	// Get rid of the rle byte now that we know.
+			packet_len += 1;			// Run lengths are stored as one less than in real.
+			packet_len = b_min(npx, packet_len);	// Clip to the amount of pixels left to fill. This prevents a malicious TGA from making us write beyond memory.
+
+			/* Expand the packet */
+			if (is_rle)	// If it's a multi-pixel packet
+			{
+				dword pixval;
+				fread(&pixval, bitmap->format->bypp, 1, file);
+
+				for (int i = packet_len; i > 0; i--)
+				{
+					put_pixval(pixel, pixval);
+					pixel += bitmap->format->bypp;
+				}
+			}
+			else
+			{
+				fread(pixel, bitmap->format->bypp, packet_len, file);
+
+				pixel += packet_len * bitmap->format->bypp;
+			}
+
+			npx -= packet_len;
+		}
+
+		/* TODO: Security holes:
+		 *  - handle crossing of lines if pitch != w * h * bypp
+		 *  - last dword goes over end of memory when expanding RLE packet
+		 */
+	}
+	else
+	{
+		fread(bitmap->data, bitmap->width * bitmap->height * bitmap->format->bypp, 1, file);
+
+		// TODO: Handle pitch if it's custom
 	}
 
 	/* Deal with image origin */
@@ -170,7 +218,7 @@ Bitmap *GFX::read_tga(const char *path, TGAMeta *meta)
 	return bmp;
 }
 
-error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
+error_t GFX::write_tga(FILE *file, Bitmap *bmp, bool do_rle, TGAMeta *meta)
 {
 	if (!file || !bmp)
 		return E_NULLPTR;
@@ -188,6 +236,7 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 	header.id_len    = (meta != NULL) ? meta->id_len : 0;
 	header.cmap_type = (bmp->format->mode == PixelFmt::INDEXED) ? 1 : 0;
 	header.img_type  = (bmp->format->mode == PixelFmt::INDEXED) ? TGA_INDEXED : TGA_RGBA;
+	header.img_type |= (do_rle) ? TGA_ISRLE : 0;
 
 	if (bmp->format->mode == PixelFmt::INDEXED)
 	{
@@ -222,22 +271,84 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, TGAMeta *meta)
 		}
 	}
 
-	// Since the bitmap data may be padded (pitch != width * fmt->bypp), we need to write it line by line
-	for (uint8 *line = bmp->bytes; line < bmp->bytes + (bmp->pitch * bmp->height); line += bmp->pitch)
+	/* Write data */
+	if (do_rle)
 	{
-		fwrite(line, bmp->width, bmp->format->bypp, file);
+		uint8 px_sz = bmp->format->bypp;
+		getpx_fn get_pixval = getpixval_for(px_sz);
+
+		uint8 *line_start = bmp->bytes;
+		uint8 *px_a, *px_b;
+
+		for (uint16 y = 0; y < bmp->height; y++)	// For each row in the image...
+		{
+			px_a = line_start;		// <- This one always stays the start of the current packet's data
+
+			while (px_a - line_start < px_sz * bmp->width)	// Until we've reached the end of the line
+			{
+				uint8 packet_len = 1;
+
+				px_b = px_a + px_sz;	// next pixel along from px_a
+
+				/* Compare the first two pixels	to	*
+				 * decide what sort of packet it is */
+
+				if (get_pixval(px_a) == get_pixval(px_b))	// Run length packet
+				{
+					/* Get length of run-length packet */
+					while (
+						get_pixval(px_a) == get_pixval(px_b)	// While the pixels stay the same...
+						&& packet_len < 128 && px_b - line_start < bmp->width * px_sz	// ...and we haven't crossed the limit of the packet length or the line...
+					)
+					{
+						packet_len++;	// increment the packet length...
+						px_b += px_sz;	// ...and go one pixel further.
+					}
+
+					fwrite<uint8>((packet_len - 1) | 0b10000000, file);
+					fwrite(px_a, 1, px_sz, file);
+				}
+				else	// Raw packet
+				{
+					/* Count how long data stays heterogenous */
+					while (
+						get_pixval(px_b - px_sz) != get_pixval(px_b)	// While the pixel before px_b != px_b ...
+						&& packet_len < 128 && px_b - line_start < bmp->width * px_sz	// ...and we haven't crossed the limit of the packet length or the line...
+					)
+					{
+						packet_len++;	// increment the packet length...
+						px_b += px_sz;	// ...and go one pixel further.
+					}
+
+					fwrite<uint8>(packet_len - 1, file);
+					fwrite(px_a, packet_len, px_sz, file);
+				}
+
+				px_a += px_sz * packet_len;		// Move past the pixels we've just encoded
+			}
+
+			line_start += bmp->pitch;
+		}
+	}
+	else
+	{
+		/* Write raw data line-by-line */		// We can't dump the whole thing cuz it might be padded.
+		for (uint8 *line = bmp->bytes; line < bmp->bytes + (bmp->pitch * bmp->height); line += bmp->pitch)
+		{
+			fwrite(line, bmp->width, bmp->format->bypp, file);
+		}
 	}
 
 	return E_OK;
 }
 
-error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
+error_t GFX::write_tga(const char *path, Bitmap *bmp, bool rle, TGAMeta *meta)
 {
 	FILE *file = fopen(path, "w");
 
 	if (!file) return E_ERROR;
 
-	error_t rc = GFX::write_tga(file, bmp, meta);
+	error_t rc = GFX::write_tga(file, bmp, rle, meta);
 
 	fclose(file);
 
@@ -268,16 +379,8 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, TGAMeta *meta)
 #include <stdio.h>
 int main(int argc, char **argv)
 {
-	Bitmap *bmp = GFX::read_tga(argc < 2 ? ".junk/MARBLES.TGA" : argv[1]);
-	Bitmap out(240, 240, &tga_rgba16);
-
-	Rect dst = {0, 0, bmp->width, bmp->height};
-
-	dst.center(&out.rect);
-
-	GFX::blit(bmp, NULL, &out, &dst);
-
-	GFX::write_tga("out.tga", &out);
+	Bitmap *bmp = GFX::read_tga(argc < 2 ? ".junk/art2.tga" : argv[1]);
+	GFX::write_tga("out.tga", bmp, true);
 	delete bmp;
 
 	return 0;
