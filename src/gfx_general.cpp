@@ -27,7 +27,8 @@ Bitmap *GFX::quantize(Bitmap *bmp, PixelFmt *target_fmt, Bitmap *out)
 	{
 		for (int16 x = 0; x < bmp->width; x++)
 		{
-			Color32 pixel_col = bmp->get_rgb(x, y);
+			dword   pixel_val = *((dword *) bmp->bytes + (y * bmp->pitch) + (x * bmp->format->bypp));
+			Color32 pixel_col = PixelFmt::decode(pixel_val, bmp->format);
 
 			quantized[y * bmp->width + x] = closest_color(pixel_col, target_fmt);
 		}
@@ -127,7 +128,7 @@ Bitmap *GFX::read_tga(FILE *file, TGAMeta *meta)
 		uint8 *pixel = bitmap->bytes;
 		uint8  packet_len;
 
-		putpx_fn put_pixval = putpixval_for(bitmap->format->bypp);	// This is a function pointer to a function that will set a pixel of the given size. This logic is done now, so that it doesn't slow down the loop.
+		putpx_fn put_pixval = putpx_for(bitmap->format->bypp);	// This is a function pointer to a function that will set a pixel of the given size. This logic is done now, so that it doesn't slow down the loop.
 
 		/* For each packet in the file */
 		for (uint64 npx = bitmap->width * bitmap->height; npx > 0;)
@@ -275,7 +276,7 @@ error_t GFX::write_tga(FILE *file, Bitmap *bmp, bool do_rle, TGAMeta *meta)
 	if (do_rle)
 	{
 		uint8 px_sz = bmp->format->bypp;
-		getpx_fn get_pixval = getpixval_for(px_sz);
+		getpx_fn get_pixval = getpx_for(px_sz);
 
 		uint8 *line_start = bmp->bytes;
 		uint8 *px_a, *px_b;
@@ -379,7 +380,16 @@ error_t GFX::write_tga(const char *path, Bitmap *bmp, bool rle, TGAMeta *meta)
 #include <stdio.h>
 int main(int argc, char **argv)
 {
-	Bitmap *bmp = GFX::read_tga(argc < 2 ? ".junk/art2.tga" : argv[1]);
+	Bitmap *bmp = new Bitmap(100, 100, &tga_rgb24);
+
+	GFX::draw_line(bmp, 10, 10, 110, 80, RGBA(0xffff00ff));
+	GFX::set_painter(&GFX::Painters::software_aa);
+	GFX::draw_line(bmp, 90, 10, 10, 80, RGBA(0x00ff00ff));
+
+	Rect rect = {10, 20, 400, 30};
+	Bitmap *viewport = bmp->viewport(&rect);
+	GFX::fill_rect(viewport, NULL, RGBA(0x80000080));
+
 	GFX::write_tga("out.tga", bmp, true);
 	delete bmp;
 

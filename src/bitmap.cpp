@@ -83,91 +83,55 @@ void Bitmap :: set_format(PixelFmt *fmt)
 	}
 }
 
-void *Bitmap :: get_pixel(int16 x, int16 y) const
+void Bitmap :: delete_data(Bitmap *bmp)
 {
-	return this->bytes + (y * this->pitch) + (x * this->format->bypp);
+	if (bmp->flags & BMP_OWNDATA)
+	{
+		free(bmp->data);
+	}
 }
 
-Color32 Bitmap :: get_rgb(int16 x, int16 y) const
+void Bitmap :: delete_fmt(Bitmap *bmp)
 {
-	if (x < 0 || x > this->width)  return RGBA(0,0,0);
-	if (y < 0 || y > this->height) return RGBA(0,0,0);
+	if (bmp->format == NULL) return;
 
-	dword *pixel = (dword *) &this->bytes[y * this->pitch + x * this->format->bypp];
-
-	return PixelFmt::decode(*pixel, this->format);
+	PixelFmt::unref(bmp->format);
 }
 
-void Bitmap :: set_pixel(uint8 *pixel, dword value, PixelFmt *fmt)
+bool Bitmap :: lock()
 {
-	memcpy(pixel, (uint8 *)(&value), fmt->bypp);
-
-//	uint32 *pixel = (uint32 *) _pixel;
-//	uint8 fmt_bpp = 8 * fmt->bypp;		// This number of bits per pixel will always be a multiple of 8, even if ->bpp is something like 15.
-//	*pixel = (*pixel & (0xffffffff << fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
-//	       | (value);
-//	*pixel = (*pixel & (0xffffffff >> fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
-//	       | (value << (32 - fmt_bpp));
-
-//	uint32 *pixel = (uint32 *) _pixel;
-//	uint8 fmt_bpp = 8 * fmt->bypp;		// This number of bits per pixel will always be a multiple of 8, even if ->bpp is something like 15.
-//
-//	*pixel = (*pixel & (0xffffffff >> fmt_bpp))	// Keep any bytes of the dword that don't belong to the pixel
-//	       | (value << (32 - fmt_bpp));
-
-//	uint32 bytes = htobe32(value);
-//	memcpy(pixel, &bytes + (4 - fmt->bypp), fmt->bypp);
-
-//	/* The integer we've been passed will have the pixel value	*
-//	 * stored in its lowest-order bytes. We need to copy ONLY	*
-//	 * these bytes into the given memory location. Say for a 	*
-//	 * format with 3 bytes per pixel we would only copy the 	*
-//	 * lowest-order three of the four bytes. Because system-	*
-//	 * endianness may vary, we have to resort to bit-shifting.	*/
-//
-//	for (uint8 byte_no = 0; byte_no < fmt->bypp; byte_no++)
-//	{
-//		pixel[byte_no] = (uint8) value >> (8 * byte_no);
-//	}
+	return true;	// Success
 }
 
-//static dword lbytes(uint8 n)
+void Bitmap :: unlock()
+{
+}
+
+bool Bitmap :: needs_lock(const Bitmap *bmp)
+{
+	return false;
+}
+
+//owning Bitmap *Bitmap :: copy(const Bitmap *bmp, Rect *area = NULL, uint32 flags = 0)
 //{
-//	union {
-//		uint8 bytes[4];
-//		dword val;
-//	} out;
-//
-//	switch (n)
-//	{
-//		case 0: out.bytes = {0x00, 0x00, 0x00, 0x00}; break;
-//		case 1: out.bytes = {0xff, 0x00, 0x00, 0x00}; break;
-//		case 2: out.bytes = {0xff, 0xff, 0x00, 0x00}; break;
-//		case 3: out.bytes = {0xff, 0xff, 0xff, 0x00}; break;
-//		case 4: out.bytes = {0xff, 0xff, 0xff, 0xff}; break;
-//	}
-//
-//	return out.val;
+//	Bitmap *bmp = new Bitmap()
 //}
-//
-//static dword hbytes(uint8 n)
-//{
-//	union {
-//		uint8 bytes[4];
-//		dword val;
-//	} out;
-//
-//	switch (n)
-//	{
-//		case 0: out.bytes = {0x00, 0x00, 0x00, 0x00}; break;
-//		case 1: out.bytes = {0x00, 0x00, 0x00, 0xff}; break;
-//		case 2: out.bytes = {0x00, 0x00, 0xff, 0xff}; break;
-//		case 3: out.bytes = {0x00, 0xff, 0xff, 0xff}; break;
-//		case 4: out.bytes = {0xff, 0xff, 0xff, 0xff}; break;
-//	}
-//
-//	return out.val;
-//}
+
+owning Bitmap *Bitmap::viewport(Rect *area)
+{
+	if (! area) area = &this->rect;
+
+	Rect::clip(area, &this->rect);
+
+	Bitmap *bmp = new Bitmap(area->w, area->h, this->format);
+
+	bmp->bytes = this->bytes + (area->y * this->pitch) + (area->x * this->format->bypp);
+	bmp->pitch = this->pitch;
+
+	bmp->flags = this->flags & ~BMP_OWNDATA;
+
+	return bmp;
+}
 
 Bitmap *Bitmap :: convert(const Bitmap *src, PixelFmt *fmt, Bitmap *out)
 {
@@ -203,19 +167,4 @@ Bitmap *Bitmap :: convert(const Bitmap *src, PixelFmt *fmt, Bitmap *out)
 	}
 
 	return out;
-}
-
-void Bitmap :: delete_fmt(Bitmap *bmp)
-{
-	if (bmp->format == NULL) return;
-
-	PixelFmt::unref(bmp->format);
-}
-
-void Bitmap :: delete_data(Bitmap *bmp)
-{
-	if (bmp->flags & BMP_OWNDATA)
-	{
-		free(bmp->data);
-	}
 }

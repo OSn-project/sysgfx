@@ -15,7 +15,8 @@ namespace OSn
 {
 	namespace GFX
 	{
-		class Bitmap;
+		class  Bitmap;
+		struct PaintHooks;
 
 		/* Copying data */
 		void blit(const Bitmap *src, const Rect *src_rect, Bitmap *dest, const Rect *dest_rect) __attribute__((nonnull (1, 3)));
@@ -29,11 +30,18 @@ namespace OSn
 		void vflip(Bitmap *bmp);
 
 		/* Drawing */
-//		void fill_rect(Bitmap *bmp, const Rect *rect, uint32 color);	// Fill the given area on the image with the given color. Pass NULL to fill the whole image. Area includes the given `x2` and `y2`.
-//		void draw_rect(Bitmap *bmp, const Rect *rect, uint32 color, uint32 borderw = 1);
-//
-//		void line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
-//		void aa_line(Bitmap *bmp, uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 color, uint32 width = 1);
+		void draw_line(Bitmap *bmp, int16 x1, int16 y1, int16 x2, int16 y2, Color32 color);
+
+		void draw_rect(Bitmap *bmp, const Rect *rect, Color32 color, int16 borderw = 1);
+		void fill_rect(Bitmap *bmp, const Rect *rect, Color32 color);	// Fill the given area on the image with the given color. Pass NULL to fill the whole image. Area includes the given `x2` and `y2`.
+
+		void set_painter(PaintHooks *hooks);	// NULL resets to default. Sets for all threads.
+
+		namespace Painters
+		{
+			extern PaintHooks software;		// This is the default, so all fields will have an implementation.
+			extern PaintHooks software_aa;
+		}
 
 		/* File I/O */
 		Bitmap  *read_tga(FILE *file,       TGAMeta *meta = NULL);
@@ -43,6 +51,7 @@ namespace OSn
 
 		/* Misc. */
 		bool palette_safe(const Bitmap *bmp);	// Checks whether all pixel values in the bitmap refer to colors within the palette. Always returns `true` for non-indexed bitmaps. This function can be used to ensure that a bitmap with an 8 color palette does not have a pixel with a palette index of 10.
+
 	}
 }
 

@@ -15,7 +15,7 @@ namespace OSn
 
 		void center(const Rect *inside);
 		static Rect *clip(Rect *rect, const Rect *bounds);
-		static Rect clipped(const Rect *rect, const Rect *bounds);
+		static Rect  clipped(const Rect *rect, const Rect *bounds);
 
 		/* Eyecandy for treating as 2nd x,y coordinates */
 		inline int16 x1() const { return x;     }	// Just eyecandy
@@ -24,7 +24,7 @@ namespace OSn
 		inline int16 y2() const { return y + h; }
 
 		inline void x1y1(int16 x1, int16 y1) { x = x1    ; y = y1    ; }
-		inline void x2y2(int16 x2, int16 y2) { w = x2 - x; h = y2 - y; }
+		inline void x2y2(int16 x2, int16 y2) { w = x2 - x; h = y2 - y; }	// Unfortunately C++ doesn't have properties, so we need functions to set the x2 and y2.
 		inline void wh(int16 w, int16 h) { this->w = w; this->h = h; }
 	};
 }
