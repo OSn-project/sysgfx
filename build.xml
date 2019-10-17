@@ -1,15 +1,18 @@
-<project name="sysgfx" default="compile">
-	<import file="../../libs.xml"/>
+<buildcc name="sysgfx" default="compile">
+	<import file="../libs.xml"/>
 	
-	<taskdef resource="cpptasks.tasks"/>
-	<taskdef resource="cpptasks.types"/>
-	
+	<preset name="sysgfx-src" parent="osn-src">
+		<include dir="${libs.libbase.include}"/>
+	</preset>
+
+	<fileset name="sources">
+		<wildcard pattern="src/*.cpp"/>
+	</fileset>
+
 	<target name="compile">
-		<cc outtype="static" subsystem="console" outfile="libosnxml.a" objdir="src/">
-		   <includepath path="include/"/>
-		   <sysincludepath path="${lib.libbase.include}"/>
-		   
-		   <fileset dir="src/" includes="*.cpp"/>
-		</cc>
+		<executable output="sysgfx_run" lang="cpp">
+			<link libpath="${libs.libbase.shlib}"/>
+			<object lang="cpp" preset="sysgfx-src" source-set="sources"/>
+		</executable>
 	</target>
-</project>
+</buildcc>

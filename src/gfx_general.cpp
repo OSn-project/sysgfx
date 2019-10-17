@@ -391,6 +391,7 @@ int main(int argc, char **argv)
 	GFX::fill_rect(viewport, NULL, RGBA(0x80000080));
 
 	GFX::write_tga("out.tga", bmp, true);
+	delete viewport;
 	delete bmp;
 
 	return 0;
